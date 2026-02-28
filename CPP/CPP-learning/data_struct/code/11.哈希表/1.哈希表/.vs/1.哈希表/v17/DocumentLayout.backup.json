@@ -1,0 +1,37 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\files\\codeStore\\CPP\\DataStructure\\11.\u54C8\u5E0C\u8868\\1.\u54C8\u5E0C\u8868\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{DA0B5A25-A973-4913-9B0A-138BF3F61A77}|1.\u54C8\u5E0C\u8868\\1.\u54C8\u5E0C\u8868.vcxproj|D:\\files\\codeStore\\CPP\\DataStructure\\11.\u54C8\u5E0C\u8868\\1.\u54C8\u5E0C\u8868\\1.\u54C8\u5E0C\u8868\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{DA0B5A25-A973-4913-9B0A-138BF3F61A77}|1.\u54C8\u5E0C\u8868\\1.\u54C8\u5E0C\u8868.vcxproj|solutionrelative:1.\u54C8\u5E0C\u8868\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "main.cpp",
+              "DocumentMoniker": "D:\\files\\codeStore\\CPP\\DataStructure\\11.\u54C8\u5E0C\u8868\\1.\u54C8\u5E0C\u8868\\1.\u54C8\u5E0C\u8868\\main.cpp",
+              "RelativeDocumentMoniker": "1.\u54C8\u5E0C\u8868\\main.cpp",
+              "ToolTip": "D:\\files\\codeStore\\CPP\\DataStructure\\11.\u54C8\u5E0C\u8868\\1.\u54C8\u5E0C\u8868\\1.\u54C8\u5E0C\u8868\\main.cpp",
+              "RelativeToolTip": "1.\u54C8\u5E0C\u8868\\main.cpp",
+              "ViewState": "AgIAAD0AAAAAAAAAAAAAAEYAAAACAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-09-10T03:20:34.953Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
