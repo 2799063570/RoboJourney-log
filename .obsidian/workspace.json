@@ -51,12 +51,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Git/Git使用指南.md",
+                "file": "ROS/moveit_tutorials/Moveit.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Git使用指南"
+              "title": "Moveit"
             }
           },
           {
@@ -276,8 +276,9 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "e8222e92f3c2b245",
+  "active": "c2d8bbdf82eb8f2a",
   "lastOpenFiles": [
+    "Git/Git使用指南.md",
     "通信协议.md",
     "ROS/ros_learning/ROS Learning.md",
     "ROS/ros_learning/ROS常用指令.md",
@@ -285,12 +286,11 @@
     "ROS/ros_learning/img/架构.png",
     "ROS/ros_learning/aubo.md",
     "文字记录方法.md",
-    "Moveit.md",
+    "ROS/moveit_tutorials/Moveit.md",
     "ROS/moveit_tutorials/moveit_tutorials.md",
     "CPP/C++生存指南.md",
     "motion_planning/motion planning algorithm self.md",
     "ompl/OMPL Learning.md",
-    "Git/Git使用指南.md",
     "ROS/ros_learning/img/shuru.png",
     "ROS/ros_learning/img/image.png",
     "ROS/ros_learning/img",
