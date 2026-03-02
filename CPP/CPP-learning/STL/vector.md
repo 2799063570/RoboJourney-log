@@ -1,8 +1,8 @@
-## C++ STL vector容器
+#vector容器
 
 原文已经发布至CSDN[https://blog.csdn.net/searcon/article/details/151836609]
 
-## vector容器基本概念
+## 📘 vector容器基本概念
 
 vector是标准模板库（STL）提供的一种动态数组容器，能够存储相同类型的元素。类似于数组，vector是一种内存中连续存储的结构。但同时又区别于普通数组，vector 的大小可以动态调整，支持在运行时高效地插入或删除元素。
 
@@ -56,6 +56,56 @@ std::vector<int> copy_vector(original); // 1,2,3
 ```
 
 在实际编程中，需要根据场景的需要灵活选择构造方法。例如，优先使用初始化列表以简化代码，或使用迭代器以避免不必要的拷贝。
+
+vector的嵌套
+
+例如：`vector<vector<int>> d` 就是由几个vector所组成的vector
+- 二维嵌套：`vector<vector<int>>`，动态二维数组
+```cpp
+// 声明方式
+int n = 3, m = 4;
+vector<vector<int>> v(n, vector<int>(m, 1));
+```
+结合一维初始化可知，`vector<int>(m, 1)`是初始化一个1维、长度为m、初值为1的临时vector对象
+因此`v(n, vector<int>(m, 1))`也可视为对vector进行初始化但是每个元素也是一个vector对象
+
+⚠️ 值得注意的是需要区别于C语言风格的`vector<int> v[n]`, 该方法初始化的是固定长度的二维数组
+
+常见操作有
+```cpp
+v[0][1] = 5;       // 访问第一行第二列
+v.push_back(vector<int>(m, 1)); // 增加一行
+```
+
+- 三维嵌套：`vector<vector<vector<int>>>`
+
+```cpp
+int l = 2, n = 3, m = 4;
+// 按照二维的方式 嵌套即可
+vector<vector<vector<int>>> v(l, vector<vector<int>>(n, vector<int>(m, 0)));
+v[0][1][2] = 7; // 第一层，第二行，第三列赋值  
+v[0].push_back(vector<int>(m, 1)); // 第一层增加一行  2 4 4
+v.push_back(vector<vector<int>>(n, vector<int>(m, 2))); // 增加一层 3 3 4
+```
+
+- 不规则嵌套：`vector<vector<int>>`（每行长度不同）
+```cpp
+vector<vector<int>> v;
+v.push_back({1,2});
+v.push_back({3,4,5});
+v.push_back({6});
+```
+
+- 结合 `pair` 或结构体的嵌套
+常用于图或权值存储，例如邻接表：
+```cpp
+vector<vector<pair<int,int>>> graph(n); // n 个顶点
+graph[0].push_back({1, 10}); // 边 0->1 权值10   [0][0] = {1, 10}
+graph[0].push_back({2, 5});  // 边 0->2 权值5    [0][1] = {2, 5}
+```
+graph是一个单位为`vector<pair<int,int>`组成的vector，graph是一个单位为`pair<int,int>`组成的vector
+
+
 
 ### vector容器的赋值
 

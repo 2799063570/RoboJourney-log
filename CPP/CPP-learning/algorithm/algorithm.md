@@ -592,7 +592,7 @@ if \quad i==0 \\
 sum[i] = sum[i-1] + a[i] \quad else \quad i > 0$$
 
 我们使用一个数组来存储前n项和，每个位置对应该位置前n项和的值。
-![alt text](CPP/CPP-learning/algorithm/image.png)
+![alt text](CPP/CPP-learning/algorithm/algrithm_img/image.png#img_center)
 计算的方式如下
 
 ```python
@@ -680,7 +680,7 @@ function removeElement(arr, n, val)
 ## 滑动窗口法
 
 又可以称为尺取法（固定距离双指针）
-![alt text](CPP/CPP-learning/algorithm/image-1.png)
+![alt text](CPP/CPP-learning/algorithm/algrithm_img/image-1.png#img_center)
 首先先引入一个问题，当我们统计一个序列中满足子数组大于k（例如2）的子数组个数时。最简单直接的方法就是嵌套遍历。通过两个嵌套的循环直接可以得到
 
 那么滑动窗口法则是设置左右索引的位置，例如初始情况下窗口的左右索引都是0。很显然是不满足条件的，那么右索引前进一步，这时候子数组的和仍然不满足（还是1）。那么将右索引再前进一步，这时候子数组的和满足（2），因此以0为索引满足条件的子数组的个数为（n-右索引，即7-2 = 5）.这时候我们让左索引前进一步，右索引也移动到左索引的位置，重新开始遍历。
@@ -741,7 +741,7 @@ int slideWindows(vector<int>& v)
 3. 迭代的终止条件应该怎么写？
 4. 为什么有时候会陷入死循环？
 
-![二分查找示意图](./algrithm_img/二分查找示意.png)
+![二分查找示意图](./algrithm_img/二分查找示意.png#img_center)
 
 **二分法过程**：初始时刻，定义两个索引，**分别对应-1和length**（如图所示）,左端索引对应红色(小于), 右端索引对应绿色(大于等于)。
 通过$(l+r)/2$得到**中间的索引坐标**，进行值的比较，如图中所示为红色，那么右索引不变，左索引更新为$(l+r)/2$所求得的中间索引。
@@ -751,14 +751,14 @@ int slideWindows(vector<int>& v)
 答案是不可以的，因为对于全是红色或者全是绿色的情况，那么初始的索引就违背了始终指向红色和绿色的原则。
 那么考虑一下**中点位置的计算方式**，(l+r)/2是否会出现问题？由于每次计算得到的中点位置都会作为索引去访问数组，所以必须保证求得的中点位置是在[0, length-1]范围内。l的最小值为-1，r的最小值为(l+2)对应区长度为2时的情况，所以中点位置的最小值为0。同理，l的最大值为(length-2)，r的最大值为length，所以中点位置的最大值为length-1。所以中点位置的计算方式是没有问题的。
 
-![alt text](./algrithm_img/情况.png)
+![alt text](./algrithm_img/情况.png#img_center)
 **分析特殊情况**
 对于**目标值大于所有元素的情况**(全是红色)，那么最终的左索引会停留在length-1位置，右索引停留在length位置(一直不动)，跳出循环。
 对于**目标值在所有元素之间**的情况，那么最终左索引停留在目标值左边界位置，右索引停留在目标值右边界位置，跳出循环。
 对于**目标值小于所有元素的情况**(全是绿色)，那么最终左索引停留在-1位置(一直不动)，右索引停留在0位置，跳出循环。
 
 **查找目标值**（找到返回对应的索引，找不到返回-1）
-![alt text](CPP/CPP-learning/algorithm/image-2.png)
+![alt text](CPP/CPP-learning/algorithm/algrithm_img/image-2.png#img_center)
 **情况分析**：取为绿色为大于等于目标值的情况，取红色为小于目标值的情况。如果最后右索引为length的位置（情况1），说明目标值大于所有元素，返回-1；如果最后右索引位置的元素等于目标值（nums[r]），返回右索引位置（情况2）；否则返回-1（情况3）。 
 所以就是多了一步的判断步骤
 
@@ -771,7 +771,7 @@ else return -1;
 ```
 
 给定一个**非递减顺序排列**的整数数组和一个目标值返回目标值在数组中的起始位置和结束位置。(若不存在目标值则返回[-1, -1]。)
-![alt text](CPP/CPP-learning/algorithm/image-3.png)
+![alt text](CPP/CPP-learning/algorithm/algrithm_img/image-3.png#img_center)
 同样还是第二种情况的假设
 那么当最后右索引为length时(情况1)，说明目标值大于所有元素，返回[-1, -1]；如果右索引位置的元素不等于目标值时（情况3），说明目标值不存在，返回[-1, -1]；当最后右索引位置的元素等于目标值时（情况2），说明找到了目标值，则r对应最小下标位置(起始位置)。那么如何找到该目标值的结束位置呢？我们再通过一次二分查找，假设目标值为target，那么我们查找target+1对应的左边界位置，然后减一即为目标值的结束位置。
 
@@ -798,3 +798,133 @@ function findMinGreenIndex(array, len, target)
 ```
 
 ## 最短路径 之 Dijkstra
+
+朴素算法，时间复杂度是$O(n^2)$
+
+有如下特点：
+- 非负边权(出现负边权，代价将会越走越小，这条路将不会停止)
+- 单源最短路径(起点为一个)
+- 顶点个数最好小于1000
+
+🚀 算法步骤分析：
+1. **建图**：任何算法我们都需要思考，用什么数据结构来存储（Dijkstra我们使用邻接矩阵），对于提供的数据并不是我们所期望的类型，需要我们进行一些处理
+2. **辅助数组**：对于图 $G=<V, E>$ , 源点为 $s$，$dist[i]$ 表示 $s$ 到 $i$ 的最短路径，$visited[i]$ 表示 $dist[i]$ 是否已经确定，$s$到$i$的最短路径是否已经确定。
+3. **初始化**：$dist[i] = ∞(0≤i<n)$， $visited[i] = false (0≤i<n)$，$dist[s] = 0$
+4. **找距离最小值的点**：从所有 $visited[i]$ 为false的顶点中找到一个 $dist[i]$ 值最小的，令 $x = i$，并且标记 $visited[x] = true$, 若找不到则算法结束
+5. **更新其余点的距离**：更新从x出发的，到达顶点y的最短路 $dist[y]: dist[y] = min\{ dist[y], dist[x] + w(x, y)\}$ 。
+6. **重复执行**：回到第四步，继续找距离最小值
+
+#### 算法图解
+
+
+![[dijkstra1.png]]
+第一步，首先就是初始化，存储右侧的两个辅助数组，一个存储是否访问过，一个存储从起始点到其的距离
+起点距离的值设置为0，其余设置为无穷，访问数组中的值全设置为false
+![[dijkstra2.png]]
+第二步，找距离最小的点，对访问数组中为false的点进行遍历，取距离最小的点，显然是起点，将这个点置为true
+![[dijkstra3.png]]
+第三步，更新可达点的距离值，0点可以到达1、2、3点，将这三个点的值进行更新
+![[dijkstra4.png]]
+第四步，回到第二步，若访问数组全为true，则算法结束。像这里显然点1，将其访问数组的值置为true
+![[dijkstra5.png]]
+第五步，更新可达点的距离值，这里1点只能到达2点，更新后2点的距离值为3
+
+以下的过程就是该逻辑，具体就不继续向下写
+
+#### 代码分析
+
+- 初始化邻接矩阵
+
+```cpp
+function initEdge(graph, n)
+{
+	for u -> (0, n-1)
+	 for v -> (0, n-1)
+	  graph[u][v] = inf;
+}
+```
+
+- 边的添加
+
+```cpp
+function addEdge(graph, u, v, w)
+{
+	graph[u][v] = min(graph[u][v], w); // 注意：这里采用取小，避免了重边直接覆盖的问题
+}
+```
+
+- 建图
+
+```cpp
+// 根据题目提供的数据，将地图中的边逐步添加到临界矩阵中
+addEdge(graph, u1, v1, w1);
+addEdge(graph, u1, v2, w2);
+addEdge(graph, u2, v2, w3);
+addEdge(graph, u3, v1, w4);
+...
+```
+
+- 框架代码
+
+```cpp
+function Dijkstra(graph, n, s, dist) // 输入: 地图，节点给个数，起始节点，距离列表
+{
+	bool visited[n] = {false};
+	Dijkstra_init(n, s, visited, dist);
+	while(true)
+	{
+		u = DijkstraFindMin(n, visited, dist);
+		if (u == -1)
+			return;
+		else
+			DijkstraUpdata(graph, n, u, visitd, dist)
+	}
+}
+```
+
+ 📌 DijkstraInit
+
+```cpp
+function DijkstraInit(n, s, visited, dist)
+{
+	for i -> (0, n-1)
+		visited[i] = false
+		dist[i] = inf
+	dist[s] = 0
+}
+```
+
+📌 DijkstraFindMin
+
+```cpp
+function DijkstraFindMin(n, visited, dist)
+{
+	int u = -1;
+	for i -> (0, n-1)
+	{
+		if visited[i] continue;
+		if u == -1 or dist[i] < dist[u]
+			u = i;
+	}
+	return u;
+}
+```
+
+📌 DijkstraUpdata
+
+```cpp
+function DijkstraUpdata(graph, n, u, visitd, dist)
+{
+	visited[u] = true;
+	for i -> (0, n-1)
+		if visited[i] continue;
+		dist[i] = min(dist[i], dist[u] + graph[u, i]);
+}
+```
+
+## 最小生成树Prim
+
+贪心算法
+适合于非负边权 无向稠密图
+顶点数最好小于1000
+
