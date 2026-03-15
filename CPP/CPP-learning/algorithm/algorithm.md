@@ -928,3 +928,348 @@ function DijkstraUpdata(graph, n, u, visitd, dist)
 适合于非负边权 无向稠密图
 顶点数最好小于1000
 
+#### 算法描述
+
+- 第一步：**建图**，任何算法我们都需要思考，用什么数据结构来存储（Dijkstra我们使用邻接矩阵），对于提供的数据并不是我们所期望的类型，需要我们进行一些处理
+- 第二步：**辅助数组**，对于图 $G=<V, E>$ , 源点为 $0$，$dist[i]$ 表示 $s$ 到 $i$ 的最短路径，$visited[i]$ 表示 $dist[i]$ 是否已经确定，$s$到$i$的最短路径是否已经确定。
+- 第三步：**初始化**，`dist[i] = graph[0][i] (0<= i < n)`、`visited[i] = false (0<= i < n)`、`visited[0] = true`、`sum=0`
+- 第四步：**找边权最小的点**，从所有`visited[i]`为false的顶点中找一个dist最小的点，令x = i，并标记`visited[x]` 为true。若没有找到则算法结束
+- 第五步：**统计边权和**，将当前找到的最小边权`dist[x]`累加到sum上，并标记`visited[x]`为true
+- 第六步：**更新其余点的最小边和**，更新最小生成树中所有顶点到y的边权，取最小：`dist[y] = min(dist[y], w(x, y))`
+- 回到第四步，重复执行
+
+#### 算法图解
+
+![[prim1.png]]
+第一步，创建右侧的辅助数组，并进行初始化，0点dist置为0并且visited置为true，并更新其余点最小边和
+![[prim2.png]]
+第二步，找出边权最小点，显然是1点，将其visited置为true，并将dist加入到sum中
+![[prim3.png]]
+第三步，更新其余点的最小边和，这里更新了到2点的边和
+![[prim4.png]]
+第四步，找出边权最小值，这里是2点，加入到sum，并更新其余点边和
+![[prim5.png]]
+第五步，找出边权最小值，这里是4点，加入到sum，并更新其余点边和
+![[prim6.png]]
+第五步，找出边权最小值，这里是5点，加入到sum，并更新其余点边和
+
+#### 代码分析
+
+- 初始化临界矩阵
+```cpp
+function initEdge(int n)
+	for u -> (0, n-1)
+		for v -> (0, n-1)
+			graph[u][v] = inf;
+```
+- 添加边(无向图)
+```cpp
+function addEdge(int u, int v, edgeType w)
+	graph[u][v] = min(graph[u][v], w);
+	graph[v][u] = min(graph[u][v], w);
+```
+- 建图，根据题目要求建图
+```cpp
+addEdge(u1, v1, w1);
+addEdge(u1, v2, w2);
+addEdge(u2, v3, w3);
+...
+```
+- 框架代码
+```cpp
+function prim(graph, int n, edgeType dist[nMax])
+{
+	visited[nMax];
+	sum = 0;
+	for (int i = 0; i<n; i++) // 初始化
+	{
+		dist[i] = inf;
+		visited[i] = false;
+	}
+	dist[0] = 0;
+	while(1)
+	{
+		int minIndex = -1;
+		for (int i = 0; i<n; i++) // 找最小值点
+		{
+			if (visited[i]) continue;
+			if (minIndex == -1 || dist[i] < dist[minIndex]) minIndex = i;
+		}
+		if (minIndex == -1 || dist[minIndex] == inf) break;
+		sum += dist[minIndex];
+		visited[minIndex] = true;
+		for (int i = 0; i<n; i++) // 更新附近点
+		{
+			if (visited[i]) continue;
+			edgeType d = graph[minIndex][i];
+			if (d == inf) continue;
+			dist[i] = min(dist[i], d);
+		}
+	}
+	return sum;
+}
+```
+
+## 深度优先搜索
+
+穷举所用情况， 全排列 == 完全图 ， 顶点数最好小于11
+
+#### 算法描述
+
+1. 第一步：**初始化数据结构**，全排列在计算的过程中，需要利用一个哈希表visited和一个栈stack来记录当前访问过的顶点。其中，哈希表是为了快速查找某个顶点是否被访问过，并且执行插入，栈是为了记录顶点的访问顺序
+2. 第二步：**顶点访问**，依次访问所有顶点，如果发现这个顶点没有在哈希表中，则把它插入到哈希表，并把这个顶点入栈。这样一来，哈希表和栈中，存储的就是本次遍历被访问到的顶点
+3. 第三步：**递归调用**，利用递归进行调用自身，继续访问下一个顶点
+4. 第四步：**递归出口**，当本次访问的顶点数等于总顶点数的时候，栈中的元素就代表一个排序，把序列进行输出，或者做其它相应的处理
+5. 第五步：**回溯**，当没有任何顶点要访问的时候，进行回溯。回溯就是将栈顶元素出栈，并将这个元素从哈希表中移除
+
+#### 算法图解
+
+
+
+#### 代码分析
+
+```cpp
+function dfs(depth, maxDepth)
+{
+	if (depth == maxDepth)
+	{
+		print(stack);// 出栈
+	}
+	for i -> (0, maxDepth-1)
+	{
+		if i not in visited
+		{
+			visited.add(i);
+			stack.push(i);
+			dfs(depth+1, maxDepth);
+			visited.remove(i);
+			stack.pop();
+		}
+	}
+}
+```
+
+
+一个递归调用，理解起来确实比较难
+首先肯定是深度优先 从0 一直遍历 push到3 即0123
+这时候栈满了 把3弹出去 则已经没值可以push 这时候只能 将2也弹出去 将3入栈 0132
+0213 0231
+0312 0321
+1
+每一个位置都会有四个元素的访问机会
+
+举个例子分析一下
+```cpp
+#include <iostream>
+#include <vector>
+#include <stack>
+#include <unordered_map>
+#include <string>
+using namespace std;
+
+unordered_map<char, bool> visited;
+unordered_map<string, int> order;
+stack<char> s;
+
+void dfs(int dp, int maxDp)
+{
+    static int count = 0;
+    if (dp == maxDp)
+    {
+        string st = "";
+        stack<char> temp = s;
+        while (!temp.empty())
+        {
+			st = temp.top() + st;
+			temp.pop();
+        }
+        order[st] = count;
+        cout << "排列 " << count << ": " << st << endl; // 打印便于验证
+        count++;
+        return;
+    }
+	char cc[]  = { 'a', 'b', 'c', 'd' };
+    for (const auto& i : cc)
+    {
+        if (visited[i]) continue;
+        visited[i] = true;
+		s.push(i);
+        dfs(dp + 1, maxDp);
+        visited[i] = false;
+        s.pop();
+    }
+
+}
+int main()
+{
+    visited['a'] = false;
+    visited['b'] = false;
+    visited['c'] = false;
+    visited['d'] = false;
+    dfs(0, 4);
+	cout << order["cadb"] << endl;
+    return 0;
+}
+```
+
+## 广度优先搜索算法
+
+求解最短路径
+求解连通性的问题
+时间复杂度相对比较稳定
+
+#### 算法描述
+
+1. 第一步，**初始化数据结构**：广搜在计算的过程中，需要利用一个哈希表 visited 和一个队列 queue 来记录当前访问过的顶点。​其中哈希表是为了快速查找某个顶点是否被访问，并且执行插入，队列是为了记录顶点的访问顺序。
+2. 第二步，**起点入队**：先把起点 s 插入队列中，并且在哈希表中把起点 s 标记掉。
+3. 第三步，**顶点访问**：如果队列不为空，弹出一个队列首元素 u，继续访问和 u 相邻的顶点 v，如果 v 不在哈希表中，则在哈希表中标记掉 v，并且把 v 插入队列中。​直到队列为空，搜索结束。
+
+#### 算法图解
+
+![[广度优先搜索1.png]]
+第一步，初始化数据结构，分别对应一个记录节点是否访问的哈希表visited（置为false），一个对应访问序列的队列queue（置空）
+![[广度优先算法2.png]]
+
+
+第二步，将起点加入队列中，并把visited对应位置置true
+第三步，将队首元素弹出，访问队首元素相邻的元素
+在这里，起点是0点，将其从队列中弹出，将其相邻的元素，加入到队列中，并把visited对应位置置true
+![[广度优先算法3.png]]
+
+将1点弹出，没有可达的点，进行下一步
+![[广度优先算法4.png]]
+将2点弹出，邻接点为345，3已经加入，队列中加入45点
+![[广度优先算法5.png]]
+到最后，5点弹出，将6点加入到队列中，将6点弹出，队列为空，算法结束
+
+#### 代码分析
+
+- 初始化数据结构
+```cpp
+function initEdges(n, edges[maxn])
+	for (int i = 0; i<n; i++)
+		edges[i] = {};
+```
+- 邻接表加边
+```cpp
+function addEdge(edges[maxn], u, v)
+	edges[u].append(v);
+```
+- 广搜过程
+```cpp
+function bfs(n, s, edges[maxn], visited)
+	queue<edgeType> q;
+	unordered_map<int, bool> visited;
+	visited.clear();
+	q.push(s); // 加入起点到队列中
+	visited[s] = true;
+	while(!q.empty())
+	{
+		edgeType u = q.front();
+		for (const auto& i : edges[u])
+		{
+			if (!visited[i])
+			{
+				visited[i] = true;
+				q.push(i);
+			}
+		}
+		q.pop();
+	}
+```
+
+细节剖析
+
+如果是最短路径问题，在终点确定的情况下，访问到终点直接返回，无需继续扩展队列（针对相同边权的情况）
+当起点有多个的情况，这种情况，可以将多个点同时插入
+邻接表中的边为权值时，算法可以改进为Dijkstra或者SPFA
+
+
+## Bellman-Ford算法 贝尔曼福特
+
+- 可求负边权
+- 单源最短路
+- 顶点数×边数 最好小于1000000
+- 时间复杂度O(nm)
+
+在一个 n (n ≤ 500) 个顶点 和 m (m ≤ 2000) 条边的连通图上，边有两种类型，一种是正常的路；一种是虫洞。​
+正常的路是双向的，行走时花费时间；虫洞是单向的，行走时能让时间倒退。​
+问是否存在某个点出发，并且在过去的某个时间回到该点。
+
+- 如果没有虫洞，这就是一个无向连通图。也就是说任意两点间可达，那么加入虫洞以后，还是任意两点间可达的。
+- 只要存在一个负权圈，就可以利用这个负权圈，把时间无限往前推，也就可以实现时光倒流。
+
+代码分析
+
+建图过程还是一样的
+再一个临界表或者临界矩阵中，不断更新边权信息
+
+松弛操作
+```cpp
+function deRelax(edges, d[maxn])
+	isRelax = false;
+	for i -> (0, edges.size()-1)
+	{
+		u, v, w = edges[i]; // 遍历邻接表 起点终点边权
+		if (d[u] + w < d[v])
+			d[v] = d[u] + w;
+			isRelax = true;
+	}
+	return isRelax;
+```
+算法核心
+```cpp
+function bellman(n, s, edges, d[maxn])
+	for (auto& i : d) i = inf;
+	d[s] = 0;
+	for (int i = 0; i<n-1; i++)
+	{
+		if (!deRelax(edges, d))
+			return false;
+	}
+	return deRelax(edges, d);
+```
+
+## Floyd
+
+- 属于动态规划
+- 全源最短路径
+- 顶点个数最好小于100
+
+佛洛依德
+
+对于一个n（100以内）个顶点的有向图（顶点编号为0 ~ n-1），给定一些顶点之间的边e(u, v, w)，求任意两点间的最短路
+
+朴素算法的话，可以考虑对每个点使用dijkstra 
+
+第一步，**设计状态**。令`d[k][i][j]`为只允许经过节点`[0, k)`作为中间节点的情况下，`i`到`j`的最短路。
+第二步，**初始状态**。`d[0][i][j]`代表只经过`[0, 0)`, 也就是不经过任何中间节点。若`i`到`j`有边，则该值为权重，否则为`inf`。
+第三步，**状态转移**。若不包含k，如果最短路不经过k点，则：`d[k][i][j] = d[k-1][i][j]`
+		如果包含k，如果最短路经过k点，则：`d[k][i][j] = d[k-1][i][k] + d[k-1][k][j]`
+第四步，**状态转移方程**。`d[k][i][j] = min([不包含k], [包含k])` 即`d[k][i][j] = min(d[k-1][i][j], d[k-1][i][k] + d[k-1][k][j])`
+第五步，**空间优化**。`d[i][j] = min(d[i][j], d[i][j]+d[k][j])`
+
+代码分析
+
+- 初始化邻接矩阵
+```cpp
+function initEdges(graph, n)
+	for u -> (0, n-1)
+		for v -> (0, n-1)
+			if (u == v) graph[u][v] = 0;
+			else graph[u][v] = inf;
+```
+- 添加边
+```cpp
+function addEdge(graph, u, v, w)
+	graph[u][v] = min(graph[u][v], w);
+```
+- 建图 就是不断的调用addEdge
+- 框架代码
+```cpp
+function Floyd(graph, n, s, dist)
+	for k -> (0, n-1)
+		for u -> (0, n-1)
+			for v -> (0, n-1)
+				graph[i][j] = min(graph[i][j], graph[i][j]+graph[k][j])
+```

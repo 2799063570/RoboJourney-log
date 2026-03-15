@@ -1,0 +1,29 @@
+/* 1. 让 Dataview 表头强制居中 */
+.table-view-table th {
+    text-align: center !important;
+}
+
+/* 2. 让 Dataview 表格内容水平、垂直居中 */
+.table-view-table td {
+    text-align: center !important; 
+    vertical-align: middle !important;
+}
+
+/* 3. （保险措施）强制隐藏表格内所有列表的小圆点和缩进 */
+.table-view-table ul {
+    list-style-type: none !important;
+    padding-left: 0 !important;
+    margin: 0 !important;
+}
+/* 让 Dataview 表格的第 4 列（功能描述）强制左对齐，提升长文本阅读体验 */
+.table-view-table th:nth-child(4),
+.table-view-table td:nth-child(4) {
+    text-align: left !important;
+    padding-left: 15px !important; /* 加一点左边距更好看 */
+}
+
+/* 稍微限制一下描述列的最大宽度，防止它把别的列挤没了 */
+.table-view-table td:nth-child(4) {
+    max-width: 350px;
+    white-space: normal;
+}

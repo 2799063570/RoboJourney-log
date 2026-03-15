@@ -225,6 +225,172 @@ int main() {
     return 0;
 }
 ```
+
+### static_cast
+
+`static_cast` 是 C++ 中**最常用、最基础的类型转换运算符**，属于**静态类型转换**（编译期完成转换检查），设计目的是替代 C 语言风格的强制转换（如 `(int)3.14`），让转换更安全、可读性更高，仅适用于编译器能判定的 “合理且安全” 的类型转换场景。
+
+`static_cast` 在**编译阶段**完成类型转换，编译器会检查转换的合法性，但**不做运行时类型验证**（这是它和 `dynamic_cast` 的核心区别）。它适用于 “逻辑上相容” 的类型转换，比如基本数据类型互转、类的向上转型等。
+```cpp
+static_cast<目标类型>(源表达式/变量)
+```
+
+- 目标类型：你想要转换成的类型（如 `int`、`double*`、`Base&` 等）；
+- 源表达式：待转换的变量、常量或表达式。
+
+应用场景：
+- **基本数据类型之间的转换**： 隐式转换的 “显式化”、合理的 “窄化转换”
+```cpp
+int num = 10;
+double d_num = static_cast<double>(num); // int → double
+int i_num = static_cast<int>(d_num); // double → int
+cout << static_cast<int>('a') << endl; // char → int
+```
+- **类的向上转型（派生类 → 基类）**：派生类指针 / 引用转换为基类指针 / 引用（“向上转型”），属于 `is-a` 关系
+```cpp
+class Base{
+public:
+	int x = 0;
+};
+class Drived : public Base{
+public:
+	int y = 10;
+};
+Drived d;// 派生类对象
+Base* d1 = static_cast<Base*>(&d);// 场景1：派生类指针 → 基类指针（向上转型）
+Base& d2 = static_cast<Base&>(d);// 场景2：派生类引用 → 基类引用
+```
+- **void* 与其他类型指针的转换**
+```cpp
+int a = 10;
+void* a_ptr = &a;
+int* a_ptrr = static_cast<int*>(a_ptr);
+```
+- **显式调用类的转换函数 / 单参数构造函数**
+```cpp
+class MyNum
+{
+public:
+	int val;
+	MyNum(int a = 0) : val(a) {}
+	operator int() { return this->val; }
+};
+
+MyNum num = static_cast<MyNum>(12);
+int intV = static_cast<int>(num);
+```
+- **空指针（nullptr）转换为任意类型的指针**
+```cpp
+int* a = static_cast<int*>(nullptr);
+base* b = static_cast<base*>(nullptr);
+```
+
+重点避坑点：
+- **不能移除 `const/volatile` 修饰符**
+```cpp
+const int a = 10;
+double b = static_cast<double>(a);  // ❌ 不能移除const属性
+```
+- **类的向下转型（基类 → 派生类）不安全**
+
+`static_cast` 允许基类指针 / 引用转换为派生类指针 / 引用（“向下转型”），但**无运行时检查**—— 如果基类指针指向的不是派生类对象，访问派生类独有成员会直接崩溃
+```cpp
+Base* b_ptr = new Base();
+Drived* d_ptr = static_cast<Drived*>(b_ptr); // // 编译通过，但逻辑错误：b_ptr 不指向 Derived 对象
+// 运行时崩溃：d_ptr->y 访问不存在的成员（b_ptr 只有 x，没有 y） 
+// cout << d_ptr->y << endl;
+```
+- **不能转换无关的指针类型**
+`static_cast` 禁止在无继承关系、无逻辑关联的指针类型间转换（如 `int*` ↔ `double*`），这是它比 C 风格转换更安全的核心
+```cpp
+int* int_ptr = new int(213);
+double* double_ptr = static_cast<double>(int_ptr); // ❌ 不能无关系的转换
+```
+- **不支持函数指针 / 成员函数指针的转换**
+`static_cast` 不能用于函数指针、类成员函数指针的转换（需用 `reinterpret_cast`）。
+
+### dynamic_cast
+
+`dynamic_cast` 是 C++ 中专门用于**类的指针 / 引用类型转换**的**动态类型转换运算符**—— 它的核心特点是**运行期检查类型合法性**，而非编译期，这也是它和 `static_cast` 最本质的区别。`dynamic_cast` 主要用于实现安全的 “向下转型”（基类→派生类），是多态场景下类型转换的 “安全卫士”。
+
+`dynamic_cast` 在**程序运行阶段**检查待转换的指针 / 引用**实际指向的对象类型**，判断是否能安全转换为目标类型：
+
+- 转换合法（如基类指针实际指向派生类对象）→ 转换成功，返回目标类型的指针 / 引用；
+- 转换非法（如基类指针指向基类对象）→ 指针返回 `nullptr`，引用抛出 `std::bad_cast` 异常。
+**仅适用于包含虚函数的类**（因为它依赖 C++ 的 RTTI 机制（运行时类型信息），而 RTTI 仅对有虚函数的类生效）；若类无虚函数，使用 `dynamic_cast` 会直接编译报错。
+```cpp
+dynamic_cast<目标类指针类型>(源指针); // 指针转换
+dynamic_cast<目标类引用类型>(源引用); // 引用转换;
+```
+
+应用场景
+- **基类指针 → 派生类指针（向下转型，核心场景）**
+需要注意的基类指针指向对象不是基类对象，而是一个派生类（指针可以转化的范围为派生类及以上类的指针）
+
+```cpp
+Base* ptr = new Drived1();
+Drived1* ptr1 = dynamic_cast<Drived1*>(ptr); // ✅
+Drived2* ptr2 = dynamic_cast<Drived2*>(ptr); // ❌ 
+Base* ptrr = new Base();
+Drived1* ptr1 = dynamic_cast<Drived1*>(ptrr); // ❌
+```
+- **基类引用 → 派生类引用（向下转型）**
+引用没有 “空引用” 的概念，因此 `dynamic_cast` 转换引用失败时，会抛出 `std::bad_cast` 异常
+和指针原理相同，注意指向对象的继承关系
+```cpp
+Drived1 obj1;
+Base& obj1_ref = obj1;
+try{
+	Drived1& obj1_reff = dynamic_cast<Drived1&>(obj1_ref); // ✅
+}catch(const bad_cast& e){
+	cout << "转化失败：" << e.what() << endl;
+}
+Base obj2;
+Base& obj2_ref = obj2;
+try{
+	Drived2& obj2_reff = dynamic_cast<Drived2&>(obj2_ref); // ❌
+}catch(const bad_cast& e){
+	cout << "转化失败：" << e.what() << endl;
+}
+```
+- **转换为 void*（获取对象实际起始地址）**
+`dynamic_cast` 可将任意类指针转为 `void*`，返回的是对象**实际类型**的起始地址（而非基类子对象地址），这是一个特殊且实用的场景：
+```cpp
+Derived1 d1_obj; 
+Base* b_ptr = &d1_obj;
+void* void_ptr = dynamic_cast<void*>(b_ptr);
+```
+- **派生类 → 基类（向上转型）**
+`dynamic_cast` 也支持向上转型（和 `static_cast` 效果一致），但完全没必要
+```cpp
+Derived1 d1_obj; // 向上转型：合法，但不如 static_cast 高效 
+Base* b_ptr = dynamic_cast<Base*>(&d1_obj);
+```
+- **识别对象的实际类型**
+```cpp
+void checkType(Base* b_ptr) {
+    if (dynamic_cast<Derived1*>(b_ptr)) {
+        cout << "实际类型：Derived1" << endl;
+    } else if (dynamic_cast<Derived2*>(b_ptr)) {
+        cout << "实际类型：Derived2" << endl;
+    }
+}
+```
+- **交叉转型（兄弟类之间的转换）**
+```cpp
+Derived1* d1_ptr = new Derived1();
+Base* b_ptr = d1_ptr; // 先向上转型为基类
+    
+// 交叉转型：Derived1 → Derived2（通过基类中转）
+Derived2* d2_ptr = dynamic_cast<Derived2*>(b_ptr);
+if (d2_ptr == nullptr) {
+    cout << "交叉转型失败（实际是Derived1）" << endl;
+}
+```
+dynamic_cast 的核心价值 ——**在类型未知的多态场景下，保证转换的安全性**。
+并不是像静态转化那样，我已知几种类的继承关系
+往往的情况是直接传进来一个指针或者引用，我们并不知道指向的是那个对象
+
 ---
 ## 🧬 3. 泛型与现代特性 (Generics & Modern Features)
 
