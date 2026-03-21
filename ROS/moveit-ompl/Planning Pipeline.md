@@ -67,7 +67,7 @@ request_adapters: >-   # 预处理/后处理过滤器
 	
 planner_configs:
 	# === 这里定义了具体的算法 ===
-    RRTkConfigDefault:
+    RRTConfigDefault:
 	    type: geometric::RRT   # <-- 关键：指定了 C++ 类名
 	    range: 0.0  # 步长参数
 	RRTConnectkConfigDefault:
@@ -80,10 +80,21 @@ manipulator: # 你的规划组名称
       - RRTkConfigDefault
       - RRTConnectkConfigDefault
       - ...
-projection_evaluator: joints(shoulder_joint,upperArm_joint) # <-- 投影 选择对空间位置影响最大的关节
-longest_valid_segment_fraction: 0.005 # <-- 最长有效段分数
+	projection_evaluator: joints(shoulder_joint,upperArm_joint) # <-- 投影 选择对空间位置影响最大的关节
+	longest_valid_segment_fraction: 0.005 # <-- 最长有效段分数
 ```
  ⚠️  可见重点在于两部分`planner_configs`和`manipulator`， 分别指定了算法的配置和规划组所对应的算法。
+ - `planner_configs`就是一个规划器配置池
+	 - 文件中为每个算法设置了默认参数（很多都带有注释说明），开发者可以通过微调这些参数来优化规划效果
+	 - `type`指定OMPL库中对应的算法类（例如 `geometric::RRTConnect`）
+	 - `range`: 每次算法在空间中生长的最大步长。如果设为 `0.0`，通常意味着让OMPL在初始化时自动推断一个合适的值。
+	- `goal_bias`: “目标偏好”。例如 `0.05` 表示算法在随机采样时，有 5% 的概率直接向着终点尝试迈进，这有助于加快寻路速度。
+	- `num_samples` / `max_nearest_neighbors`: 决定了采样的密度和连接的邻居数量，通常影响路径的质量和计算时间。
+ - `manipulator` 对应每个特定规划组配置
+	 - `default_planner_config` 指出机器人
+	 - `planner_configs` 规定了该规划组可以调用的算法
+	 - `projection_evaluator` 高维向低维投影是参考的关节
+	 - `longest_valid_segment_fraction` 路径碰撞检测的分辨率
 
 📝 **动态**则可以通过**规划组来指定具体的算法**
 ```python

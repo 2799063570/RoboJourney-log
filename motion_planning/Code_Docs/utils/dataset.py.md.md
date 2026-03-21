@@ -26,3 +26,11 @@ return {
             'start': torch.from_numpy(start_state)          # 【6】
         }
 ```
+
+```python
+get_trajectories_and_obsParms
+return trj{shape: (N, 6), 轨迹完整路径点数组}, obs_data{shape: (max_obs, 7), 场景的障碍物信息}
+```
+
+![[dataset.png]]
+可以看到有的路径 上面的点基本就没有删除过

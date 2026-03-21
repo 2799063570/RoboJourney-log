@@ -35,9 +35,7 @@ SORT module ASC, file.name ASC
 
 - **(`config/`)** - 一些模型训练、运行相关的参数配置
 - **(`debug/`)** - 模型撰写过程对一些数据可视化的程序
-	- **[check_paths](./debug/check_paths.py.md)** - 检查数据集中各个关节状态的变化情况，绘制成图
-	- **[debug_collision](../motion_planning/debug/debug_collision.py)** - 可视化碰撞检测的结果：从数据集中读取轨迹数据，进行碰撞检测可视化
-	- **[fk](fk.py.md.md)** - 借助机器人模型计算机器人的正向运动学【手动指定关节角度，求得对应的末端位姿】
 
-  - **[plot_path](../motion_planning/debug/plot_path.py)** - 生成不同形态（如直线、螺旋）的虚拟测试轨迹数据并保存为 CSV
 - [[utils]]   - 一些模型训练、运行相关的工具函数
+- [[debug]] 一些调试文件
+- [[model]]

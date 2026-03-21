@@ -52,27 +52,78 @@
 
 ## C++接口
 
+### `moveit::planning_interface::MoveGroupInterface`
+
 最简单的用户接口是通MoveGroupInterface class，**It provides easy to use functionality for most operations** that a user may want to carry out, specifically setting **joint or pose goals**, **creating motion plans**, **moving the robot**, **adding objects** into the environment and **attaching/detaching objects** from the robot.  This interface communicates over ROS topics, services, and actions to the MoveGroup Node.
 
 就是通过该类(MoveGropInterface), 可以设置关节空间或者是笛卡尔空间的状态，可以求解相应的路径规划解，可以发布移动机器人的指令，可以添加障碍物，也可以添加附着物。
-当然这只是一个接口的类，具体的这些功能的实现主要还是靠MoveGroup来实现，这个类主要是借助于话题、服务以及动作，向MoveGroup发送相应的请求。
+当然这只是一个接口的类，具体的这些功能的实现主要还是靠MoveGroup来实现，**这个类主要是借助于话题、服务以及动作，向MoveGroup发送相应的请求**。
+实例化 `MoveGroupInterface` 时，必须指定要控制的组名。一旦绑定，该实例的所有指令（如设置目标、规划路径）都将专门针对这个特定的运动链。
+功能包：`moveit_ros_planning_interface`
+头文件：`#include <moveit/move_group_interface/move_group_interface.h>`
+
+| **功能类别**              | **常用方法**                            | **功能描述**                                |
+| --------------------- | ----------------------------------- | --------------------------------------- |
+| **目标设置 (Targeting)**  | `setPoseTarget(pose)`               | 设置末端执行器 (End-effector) 想要到达的 3D 空间位姿。   |
+|                       | `setJointValueTarget(values)`       | 直接设置运动组内各个关节的目标角度/位置。                   |
+|                       | `setNamedTarget(name)`              | 移动到 SRDF 文件中预定义的姿态（如 "home", "ready"）。  |
+| **运动执行 (Execution)**  | `plan(my_plan)`                     | 仅请求运动规划，不执行。计算出的轨迹保存在 `my_plan` 中。      |
+|                       | `execute(my_plan)`                  | 控制机器人实际执行之前通过 `plan()` 计算出的轨迹。          |
+|                       | `move()`                            | 一个阻塞调用，内部自动依次执行 `plan()` 和 `execute()`。 |
+| **状态获取 (State Info)** | `getCurrentPose()`                  | 获取末端执行器在当前参考坐标系下的实际位姿。                  |
+|                       | `getCurrentJointValues()`           | 获取该规划组当前所有关节的实时数值。                      |
+| **参数配置 (Config)**     | `setMaxVelocityScalingFactor()`     | 限制机器人运动的最大速度比例（0.0 到 1.0 之间）。           |
+|                       | `setMaxAccelerationScalingFactor()` | 限制机器人运动的最大加速度比例。                        |
+|                       | `setWorkspace()`                    | 限制运动规划器搜索的 3D 边界空间。                     |
+⚠️ 需要注意线程
+`MoveGroupInterface` 并不是独立工作的，它需要极其依赖底层的 ROS 话题（Topics）来感知世界和机器人的状态：
+- 它需要订阅 `/joint_states` 话题，以获取机器人实时的各个关节角度。
+- 它需要订阅 `/tf` 树，以明确机器人的坐标系变换。
+- 它还需要接收来自 `move_group` Action Server 的反馈（Feedback）和结果（Result）。
+	
+接收这些信息都需要 ROS 节点不断地处理回调函数（Callback Queue）。
+如果你不开辟新的线程，而是全部在主线程（Main Thread）中运行，主线程被挂起（阻塞）
+
+### `moveit::planning_interface::PlanningSceneInterface`
+
+MoveIt 中专门用于与**规划场景 (Planning Scene)** 交互的 C++ 客户端。它的核心职责非常明确：**管理环境中的碰撞对象 (Collision Objects)**。`PlanningSceneInterface` 充当了你的 C++ 节点与 MoveIt 后端 `move_group` 节点（具体来说是内部的 `PlanningSceneMonitor` 组件）之间的通信信使。
+
+主要两类：普通碰撞对象 (Collision Objects) 和 附着碰撞对象 (Attached Collision Objects)
+
+| **功能类别**    | **常用方法**                                                         | **功能描述**                         |
+| ----------- | ---------------------------------------------------------------- | -------------------------------- |
+| **应用/修改对象** | `applyCollisionObject(object)`                                   | 同步地向场景中发送一个物体的状态变更（添加、移动、移除）。    |
+|             | `applyCollisionObjects(objects)`                                 | 批量操作，一次性向场景中应用多个物体的变更。           |
+| **附着/分离操作** | _（通常通过构建带有特定操作指令的 `AttachedCollisionObject` 消息，然后调用 apply 方法实现）_ | 将物体绑定到机器人连杆，或从连杆上解除绑定。           |
+| **获取场景信息**  | `getKnownObjectNames()`                                          | 获取当前规划场景中所有已知碰撞对象的名称列表。          |
+|             | `getObjectPoses(object_names)`                                   | 传入物体名称列表，获取它们在当前场景中的具体 3D 坐标和姿态。 |
+步骤：
+1. **定义消息体**：创建一个 `moveit_msgs::CollisionObject` 对象。
+2. **设置属性**：
+	- **ID**: 给物体起个名字（例如 "table_1"）。
+	- **Frame**: 指定该物体的位置是相对于哪个坐标系的（通常是机器人的基座坐标系，如 "base_link"）。    
+	- **Shape & Pose**: 定义物体的几何形状（Box, Cylinder, Sphere 等的尺寸）以及它在空间中的位姿。
+	- **Operation**: 设置为 `moveit_msgs::CollisionObject::ADD`。
+3. **应用到场景**：调用 `PlanningSceneInterface` 的 `applyCollisionObject()` 方法。
+
+### 教程实例
 
 ```shell
 # 执行以下两条指令
 roslaunch panda_moveit_config demo.launch
 roslaunch moveit_tutorials move_group_interface_tutorial.launch
 ```
+我们看一下教程提供的程序
 
-先设置运动规划组planning groups/joint model group：
-通过`moveit::planning_interface::MoveGroupInterface`设置接口对象，输入为规划组的名称，例如"aubo_i5"、"panda_arm"等
-通过`moveit::planning_interface::PlanningSceneInterface`设置规划场景的对象
-通过原始指针指向规划组的接口对象提升运行效率。
-`const moveit::core::JointModelGroup* joint_model_group = move_group_interface.getCurrentState()->getJointModelGroup(PLANNING_GROUP);`
-
-可视化设置：
-通常使用rviz进行可视化，这里当然使用rviz相关的接口了，先初始化一个MoveItVisualTools对象
-`moveit_visual_tools::MoveItVisualTools visual_tools("panda_link0");`
-这里输入参数是参考坐标系的名称，这里选择的是机器人的基坐标系
+1. 先设置运动规划组planning groups/joint model group：
+	通过`moveit::planning_interface::MoveGroupInterface`设置接口对象，输入为规划组的名称，例如"aubo_i5"、"panda_arm"等
+2. 通过`moveit::planning_interface::PlanningSceneInterface`设置规划场景的对象
+3. 通过原始指针指向规划组的接口对象提升运行效率。
+	`const moveit::core::JointModelGroup* joint_model_group = move_group_interface.getCurrentState()->getJointModelGroup(PLANNING_GROUP);`
+4. 可视化设置：
+	通常使用rviz进行可视化，这里当然使用rviz相关的接口了，先初始化一个MoveItVisualTools对象
+	`moveit_visual_tools::MoveItVisualTools visual_tools("panda_link0");`
+	这里输入参数是参考坐标系的名称，这里选择的是机器人的基坐标系
 
 ```cpp
 moveit_visual_tools::MoveItVisualTools visual_tools("panda_link0");
@@ -227,6 +278,7 @@ for (std::size_t i = 0; i < waypoints.size(); ++i)
   visual_tools.publishAxisLabeled(waypoints[i], "pt" + std::to_string(i), rvt::SMALL);
 visual_tools.trigger();
 ```
+
 ```cpp
 // 对笛卡尔路径进行修改
 // 先生成几何路径（这一步只得到了一串点，还没有速度信息）

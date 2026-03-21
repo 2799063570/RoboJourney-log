@@ -591,7 +591,6 @@ int main() {
     return 0;
 }
 ```
-
 #### 工程师视角的“代价” (Performance Note)
 
 虽然它好用，但不是免费的。
@@ -604,6 +603,41 @@ int main() {
 > **💡 结论**： 在 **`1000Hz` 以上的硬实时控制循环**或者**图像处理像素级循环**中，尽量少用 `std::function`（可以用模板代替，虽然代码会难写）。
 > 但在 **消息回调、状态机切换、任务调度** 等绝大多数 ROS 业务逻辑中，**放心大胆地用**，这点损耗对于毫秒级的任务来说完全可以忽略不计。
 
+### std::find_if
+
+在一个指定的范围内，线性查找“第一个满足某个特定条件”的元素, 是 C++ 标准模板库（STL）中 `<algorithm>` 头文件里提供的一个非常核心的查找算法。
+
+```cpp
+#include <algorithm>
+template< class InputIt, class UnaryPredicate >
+InputIt find_if( InputIt first, InputIt last, UnaryPredicate p );
+```
+它接收三个参数：
+
+- **`first`**：查找范围的起始迭代器（包含该位置）。
+- **`last`**：查找范围的结束迭代器（**不包含**该位置，即左闭右开区间 `[first, last)`）。
+- **`p` (Predicate 谓词)**：这是一个“条件判断器”。它可以是一个函数指针、一个仿函数（Functor），或者在现代 C++ 中最常用的——**Lambda 表达式**。这个判断器必须接收范围内的元素类型作为输入，并返回一个 `bool` 值（`true` 表示满足条件，`false` 表示不满足）。
+
+- **如果找到了：** 它会返回一个指向**第一个**让条件 `p` 返回 `true` 的元素的**迭代器**。
+- **如果没找到：** 它会返回你传入的那个 **`last` 迭代器**（通常是容器的 `.end()`）
+
+例如
+```cpp
+struct Joint {
+    std::string name;
+    bool is_continuous;
+};
+std::vector<Joint> joints = {
+        {"joint_1", false},
+        {"joint_2", false},
+        {"joint_continuous_1", true}, // 我们想找第一个连续旋转的关节
+        {"joint_3", false}
+    };
+auto it = std::find_if(joints.begin(), joints.end(), [](const Joint& j) { return j.is_continuous == true; });
+
+if (it != joints.end()) { std::cout << "找到了连续旋转关节: " << it->name << std::endl; } 
+else { std::cout << "没有找到符合条件的关节。" << std::endl; }
+```
 
 ---
 ## 🛠️ 4. STL 工具与内存管理 (STL & Memory)

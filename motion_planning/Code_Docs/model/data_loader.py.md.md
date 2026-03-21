@@ -4,7 +4,8 @@ status: 🟢 测试通过
 dependencies:
   - numpy
   - dataset
-description:
+description: 读取数据集，对数据进行相关的处理，方便后续调用
+module: model
 ---
 
 `data_loader.py` 是位于原生 `dataset.py` 和神经网络模型大关口之间的一个**过滤与适配层**。

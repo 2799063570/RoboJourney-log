@@ -4,11 +4,25 @@
     "type": "split",
     "children": [
       {
-        "id": "d4a2a5af5654bd84",
+        "id": "d8e957bf0a392d6d",
         "type": "tabs",
         "children": [
           {
-            "id": "379d90c75eb7fdb5",
+            "id": "c34dcc48c660a942",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "ROS/moveit_tutorials/moveit_tutorials.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "moveit_tutorials"
+            }
+          },
+          {
+            "id": "bcd7cd16c9391ef9",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -20,37 +34,8 @@
               "icon": "lucide-file",
               "title": "文字记录方法"
             }
-          },
-          {
-            "id": "52b0d3c913006dee",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "CPP/C++ 关键字字典.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "C++ 关键字字典"
-            }
-          },
-          {
-            "id": "02e2cec1ff3f5b4e",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "C++面向对象.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "C++面向对象"
-            }
           }
-        ],
-        "currentTab": 2
+        ]
       }
     ],
     "direction": "vertical"
@@ -107,7 +92,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 383.5
   },
   "right": {
     "id": "d448293b268e8e21",
@@ -185,13 +170,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "C++面向对象.md",
+                "file": "ROS/moveit_tutorials/moveit_tutorials.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "C++面向对象 的大纲"
+              "title": "moveit_tutorials 的大纲"
             }
           },
           {
@@ -226,50 +211,50 @@
   },
   "active": "e8222e92f3c2b245",
   "lastOpenFiles": [
-    "motion_planning/Code_Docs/model/data_loader.py.md.md",
-    "motion_planning/Code_Docs/README_MAP.md.md",
-    "motion_planning/Code_Docs/utils/dataset.py.md.md",
-    "CPP/C++ 关键字字典.md",
-    "motion_planning/motion planning algorithm self.md",
-    "motion_planning/Code_Docs/utils/grid.py.md.md",
-    "motion_planning/Code_Docs/model",
+    "Trajectory Execution.md",
+    "ROS/moveit_tutorials/moveit_tutorials.md",
     "文字记录方法.md",
+    "CPP/C++生存指南.md",
+    "ROS/moveit-ompl/Planning Pipeline.md",
+    "ROS/ros_learning/ROS常用指令.md",
+    "ROS/pluginlib插件机制.md",
+    "ROS/moveit-ompl/PlanningContext.md",
     "ROS/moveit-ompl/Move group.md",
+    "Sensors Functionality.md",
+    "CPP/C++ 关键字字典.md",
+    "ROS/moveit-ompl/planning context.md",
+    "motion_planning/modifyRRT.md",
+    "motion_planning/Code_Docs/utils/dataset.py.md.md",
+    "motion_planning/Code_Docs/utils/img/dataset.png",
     "motion_planning/Code_Docs/utils/utils.md",
     "motion_planning/Code_Docs/utils/fast_fk.py.md.md",
-    "motion_planning/Code_Docs/debug/fk.py.md.md",
+    "motion_planning/Code_Docs/utils/grid.py.md.md",
+    "motion_planning/Code_Docs/README_MAP.md.md",
+    "CPP/C++面向对象.md",
+    "motion_planning/Code_Docs/model/model.md",
+    "motion_planning/Code_Docs/debug/debug.md",
+    "motion_planning/Code_Docs/debug/visual_collision_check.py.md.md",
+    "motion_planning/Code_Docs/debug/debug_collision.py.md.md",
     "motion_planning/Code_Docs/debug/check_paths.py.md.md",
-    "motion_planning/modifyRRT.md",
+    "motion_planning/Code_Docs/debug/fk.py.md.md",
     "motion_planning/Code_Docs/utils/arm_points.py.md.md",
-    "motion_planning/Code_Docs/utils/collision.py.md.md",
+    "motion_planning/Code_Docs/model",
     "motion_planning/Code_Docs/utils/img",
     "motion_planning/Code_Docs/utils/img/arm_points1.png",
-    "README.md",
     "utils",
     "motion_planning/Code_Docs/utils",
     "debug",
-    "ROS/moveit_tutorials/Moveit.md",
     "motion_planning/Code_Docs/debug",
-    "motion_planning/数据生成程序.md",
     "motion_planning/Code_Docs",
     "未命名.base",
-    "C++面向对象.md",
-    "CPP/CPP-learning/leetcode/朝花夕拾.md",
-    "CPP/程序开发知识.md",
     "CPP/CPP-learning/algorithm/algrithm_img/per-class allocator.png",
-    "CPP/C++生存指南.md",
-    "C语言 关键字字典.md",
     "CPP/CPP-learning/algorithm/algrithm_img/template_method.png",
     "CPP/CPP-learning/algorithm/algrithm_img/vtbl-vptr.png",
     "CPP/CPP-learning/algorithm/algrithm_img/广度优先搜索.png",
-    "CPP/CPP-learning/algorithm/algorithm.md",
     "CPP/CPP-learning/algorithm/algrithm_img/原型模式图解.png",
     "CPP/CPP-learning/algorithm/algrithm_img/composite.png",
     "CPP/CPP-learning/algorithm/algrithm_img/继承复合构造顺序.png",
     "CPP/CPP-learning/algorithm/algrithm_img/虚函数的使用.png",
-    "CPP/CPP-learning/algorithm/algrithm_img/delegation图解.png",
-    "CPP/CPP-learning/STL/stack.md",
-    "ROS/ros_learning/ROS Learning.md",
     "CPP/CPP-learning/leetcode/img",
     "ROS/ros_learning/img",
     "ompl/ompl架构.canvas",
