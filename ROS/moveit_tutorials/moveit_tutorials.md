@@ -115,7 +115,7 @@ roslaunch moveit_tutorials move_group_interface_tutorial.launch
 ```
 我们看一下教程提供的程序
 
-1. 先设置运动规划组planning groups/joint model group：
+1. 先设置运动规划组`planning groups`/`joint model group`：
 	通过`moveit::planning_interface::MoveGroupInterface`设置接口对象，输入为规划组的名称，例如"aubo_i5"、"panda_arm"等
 2. 通过`moveit::planning_interface::PlanningSceneInterface`设置规划场景的对象
 3. 通过原始指针指向规划组的接口对象提升运行效率。

@@ -12,6 +12,9 @@ module: model
 
 由于 `dataset.py` 的设计不仅要负责读取原始文件，还要处理动态 RDP 简化、提取相对历史等庞杂的基础数据工作，`data_loader.py` 从中剥离出了面向模型端的最通用需求：**将数据从 Dataset 中安全取出，清理“死数据”（例如不存在的凑数障碍物），并直接包装成带 batch 维度的 PyTorch Tensor，送入模型喂料**。
 
+就是输入数据集的地址和所需要的（路径|点）id
+根据地址构造一个dataset类
+
 ## 🏗️ 核心功能模块
 
 ### 1. 基于轨迹维度的提取 (`load_data_with_validation`)

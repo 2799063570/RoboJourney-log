@@ -20,7 +20,7 @@ SORT module ASC, file.name ASC
 - **(`data/`)** - 训练所需的训练数据
 - **(`docs/`)** - 项目的解释文档
 - **(`include/`)** - src中文件依赖的头文件
-- **(`config/`)** - launch项目所需启动的程序文件
+- **(`launch`)** - launch项目所需启动的程序文件
 - **(`meshes/`)** - 机器人的一些模型文件
 - **(`motion_planning/`)** - 模型代码程序
 - **(`result/`)** - 存放一些程序的结果
@@ -34,6 +34,10 @@ SORT module ASC, file.name ASC
 ### 模型开发
 
 - **(`config/`)** - 一些模型训练、运行相关的参数配置
+- **(`model/`)** - 模型架构文件对应的损失函数、RRT算法
+	- **`model_cvae`** : **CVAE+MDN 模型**， 四部分架构：环境编码器、路径编码器、变分推断、解码器
+	- **`loss_cvae`** :  **CVAE 专属损失函数**，混合高斯分布的负对数似然（NLL）和 KL 散度的组合计算
+	- 
 - **(`debug/`)** - 模型撰写过程对一些数据可视化的程序
 
 - [[utils]]   - 一些模型训练、运行相关的工具函数

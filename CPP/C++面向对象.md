@@ -101,8 +101,8 @@ class complex
 public:
 	complex(T r = 0, T i = 0) : re(r), im(i) { };
 	complex& operator += (const complex&);
-	T real() {return re};
-	T imag() {return im};
+	T real() {return re;};
+	T imag() {return im;};
 private:
 	double re, im;
 	friend complex& __doapl(complex*, const complex&);
@@ -134,7 +134,7 @@ A::getInstance().setup();
 返回引用和返回值的区别就在于，是返回本身还是返回一个临时对象
 对于返回引用，不必在意接收端的形式，如果使用引用的话效率更高，使用对象的话会出现拷贝构造
 
-带指针成员的类
+带指针成员的类（委托）
 ```cpp
 #ifndef __STRING__
 #define __STRING__
@@ -1140,5 +1140,5 @@ inline void operator delete[](void* ptr)
 { cout << "reconstruct global delete[]()" << endl; myFree(ptr); }
 ```
 ![[per-class allocator.png]]
-
+ 
 
