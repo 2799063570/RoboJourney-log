@@ -31,10 +31,27 @@ public:
 查看以上的程序模版，我们可以发现主要实现一个继承于`planning_interface::PlanningContext`的子类
 实现自己算法的独特功能，但是大致的框架依然规定好了
 
+首先我们看构造函数
+`MyAlgoContext(const string& name, const string& group)  : planning_interface::PlanningContext(name, group)`
+
+这里输入了两个参数： 规划器的名称和规划组的名称，同时呢这也是父类构造所需要的参数
+当然我们可以属于一些其他参数，例如机器人模型、神经网络模型
+
+
+
 主要分为以下几个方面：
 
-- solve(核心求解)：`bool solve(planning_interface::MotionPlanResponse &res) override;`
+- solve(核心求解)：
+```cpp
+ bool solve (planning_interface::MotionPlanResponse &res) override;
+```
+
 	- 
 - clear
 - terminate
+
+
+具体的任务肯定是要交给planner去实现的，那么planner如何实现呢
+这里主要是纯数学的方面，要交给OMPL中的规划器
+而我们要实现算法的话，则一定要继承于OMPL中的基类[[planner]]
 

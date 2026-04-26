@@ -52,19 +52,27 @@ CLASS_LOADER_REGISTER_CLASS(LERPPlannerManager, planning_interface::PlannerManag
 
 那么需要实现的子函数有那些呢？
 
-- `initialize`(初始化)：`bool initialize(const moveit::core::RobotModelConstPtr& model, const std::string& ns)`
+- `initialize`(初始化)：
+	```cpp
+bool initialize(const moveit::core::RobotModelConstPtr& model, const std::string& ns)
+	```
 	- 功能：初始启动一次，加载那些耗时、占用内存且整个生命周期资源
-	- 例如可以读取机器人模型、加载我们的算法模型、读取规划相关的参数; 创建OMPL_Interface
+	- 例如可以读取机器人模型、加载我们的算法模型、读取规划相关的参数; 创建 OMPL_Interface
 	- 我们去查看`moveit planner`下的 `ompl interface`的源码可以看到, 不仅有创建OMPL_Interface 还有 创建了动态调参机制`OMPLDynamicReconfigureConfig`, 详细过程可以查看 [C++生存指南] #动态调参机制
 	- 算法模型则是通过OMPL_Interface来获取规划器的配置`getPlannerConfigurations`, 详见[PlanningInterface]
 
-- `canServiceRequest` (资格审查)：`bool canServiceRequest(const planning_interface::MotionPlanRequest& req) const`
-	- **调用时机**: 当 MoveIt 收到一个规划请求，但还没决定把任务交给谁时
+- `canServiceRequest` (资格审查)：
+	```cpp
+bool canServiceRequest(const planning_interface::MotionPlanRequest& req) const
+	```
+	- **调用时机**: 当 MoveIt 收到一个规划请求，但还没决定把任务交给谁时	
 	- **核心功能**: **“检查菜单”**。判断当前的规划器是否有能力处理这个请求。
-	- 例如，判断是否是机器人模型是否和我们算法的所用的模型一直
+	- 例如，判断是否是机器人模型是否和我们算法的所用的模型一致
 	
 - `getPlanningContext` (创建厨师)：
-	`planning_interface::PlanningContextPtr getPlanningContext( const planning_scene::PlanningSceneConstPtr& planning_scene, const planning_interface::MotionPlanRequest& req, moveit_msgs::MoveItErrorCodes& error_code) const`
+	```cpp
+	planning_interface::PlanningContextPtr getPlanningContext( const planning_scene::PlanningSceneConstPtr& planning_scene, const planning_interface::MotionPlanRequest& req, moveit_msgs::MoveItErrorCodes& error_code) const
+	```
 	- **调用时机**: 当 MoveIt 决定使用你的规划器，并且需要开始执行具体的规划任务时
 	- **核心功能**: **“指派厨师”**。你需要实例化一个 `LERPPlanningContext` 对象，并将它返回给 MoveIt。
 	- **配置模型**：

@@ -8,7 +8,7 @@
 
 🚀 工作流程：
 - interface 给他配置需求，让PlanningContextManager提供一个context
-- PlanningContextManager会先在自己的仓库中进行查找
+- PlanningContextManager 会先在自己的仓库中进行查找
 - 复用或者创建
 	- 如果有的话直接拿出来使用
 	- 如果没有创建一个新的存储在仓库中，并拿出来使用
@@ -40,3 +40,16 @@ struct PlanningContextManager::CachedContexts
 该智能指针是通过[C++生存指南] #栈展开 来实现的
 
 `ModelBasedPlanningContext`继承于 `planning_interface::PlanningContext`
+
+#### 构造函数
+```cpp
+PlanningContextManager(moveit::core::RobotModelConstPtr robot_model,
+                       constraint_samplers::ConstraintSamplerManagerPtr csm);
+```
+**必须传入两个核心依赖**：
+
+1. **`RobotModel`**：机器人运动学模型（来自 URDF/SRDF），所有规划都基于机器人结构；
+2. **`ConstraintSamplerManager`**：约束采样管理器（用于路径约束、目标约束的采样）。
+
+
+

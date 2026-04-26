@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "motion_planning/Code_Docs/README_MAP.md.md",
+                "file": "CPP/C++ 关键字字典.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "README_MAP.md"
+              "title": "C++ 关键字字典"
             }
           },
           {
@@ -64,21 +64,34 @@
             }
           },
           {
-            "id": "1b4274c87526520c",
+            "id": "eccb152ca49677aa",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "CPP/C++面向对象.md",
+                "file": "ROS/moveit-ompl/PlannerConfiguration.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "C++面向对象"
+              "title": "PlannerConfiguration"
+            }
+          },
+          {
+            "id": "e855647dbd213d9f",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "ROS/moveit-ompl/PlanningContextManager.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "PlanningContextManager"
             }
           }
-        ],
-        "currentTab": 2
+        ]
       }
     ],
     "direction": "vertical"
@@ -213,13 +226,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Git/method.md",
+                "file": "CPP/C++ 关键字字典.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "method 的大纲"
+              "title": "C++ 关键字字典 的大纲"
             }
           },
           {
@@ -233,7 +246,7 @@
             }
           }
         ],
-        "currentTab": 5
+        "currentTab": 4
       }
     ],
     "direction": "horizontal",
@@ -252,8 +265,32 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "e8222e92f3c2b245",
+  "active": "c34dcc48c660a942",
   "lastOpenFiles": [
+    "ROS/moveit-ompl/PlanningContextManager.md",
+    "CPP/C++ 关键字字典.md",
+    "ROS/moveit-ompl/PlanningInterface.md",
+    "ROS/moveit-ompl/PlannerConfiguration.md",
+    "ROS/moveit-ompl/PlannerManager.md",
+    "ROS/moveit-ompl/planning context.md",
+    "ROS/moveit-ompl/Planning Pipeline.md",
+    "ROS/moveit-ompl/move group Node.md",
+    "ROS/moveit-ompl/PlanningContext.md",
+    "planner.md",
+    "motion_planning/modifyRRT.md",
+    "motion_planning/Code_Docs/README_MAP.md.md",
+    "CPP/C语言 关键字字典.md",
+    "CPP/C++生存指南.md",
+    "CPP/C++面向对象.md",
+    "CPP/程序开发知识.md",
+    "ROS/ros_learning/ROS常用指令.md",
+    "ROS/moveit-ompl/ROS Pluginlib.md",
+    "ROS/moveit-ompl/Move group.md",
+    "ompl/OMPL Learning.md",
+    "ompl/ompl架构.canvas",
+    "conflict-files-obsidian-git.md",
+    "Git/method.md",
+    "README.md",
     "Git/Git使用指南.md",
     "Git/img/status_after_add.jpg",
     "Git/img/repository_finish.jpg",
@@ -266,32 +303,8 @@
     "Git/img/image-3.png",
     "Git/img/image-2.png",
     "Git/img",
-    "Git/method.md",
-    "CPP/C++面向对象.md",
     "motion_planning/motion planning algorithm self.md",
     "tf坐标变换.md",
-    "ROS/ros_learning/ROS Learning.md",
-    "ROS/ros_learning/ROS常用指令.md",
-    "motion_planning/Code_Docs/model/data_loader.py.md.md",
-    "motion_planning/Code_Docs/utils/dataset.py.md.md",
-    "motion_planning/Code_Docs/README_MAP.md.md",
-    "motion_planning/Code_Docs/model/model.md",
-    "motion_planning/数据生成程序.md",
-    "motion_planning/modifyRRT.md",
-    "ompl/OMPL Learning.md",
-    "motion_planning/Code_Docs/utils/fast_fk.py.md.md",
-    "motion_planning/Code_Docs/utils/arm_points.py.md.md",
-    "文字记录方法.md",
-    "CPP/CPP-learning/algorithm/algorithm.md",
-    "ompl/ompl架构.canvas",
-    "ROS/moveit_tutorials/moveit_tutorials.md",
-    "Trajectory Execution.md",
-    "CPP/C++生存指南.md",
-    "ROS/moveit-ompl/Planning Pipeline.md",
-    "ROS/pluginlib插件机制.md",
-    "ROS/moveit-ompl/PlanningContext.md",
-    "ROS/moveit-ompl/Move group.md",
-    "Sensors Functionality.md",
     "motion_planning/Code_Docs/model",
     "motion_planning/Code_Docs/utils/img",
     "utils",

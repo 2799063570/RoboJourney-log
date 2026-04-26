@@ -13,10 +13,14 @@
 核心成员变量
 
 - `PlanningContextManager context_manager_`：
-	- 最为核心的成员变量
+	- 最为核心的成员变量 planning context 包工头，管理planning context的生成
 - `constraint_samplers::ConstraintSamplerManagerPtr constraint_sampler_manager_`
+	- 负责“约束采样”的专家团队，负责加载特定的插件，专门生成满足姿态约束的路径点。
 - `moveit::core::RobotModelConstPtr robot_model_`
 - `ros::NodeHandle nh_`
+- 状态标志位
+	- `use_constraints_approximations_` 是否允许使用预先计算好的近似约束数据库来加速求解
+	- `simplify_solutions_` 决定了规划完成后，要不要用 OMPL 的路径平滑工具
 
 核心函数
 
