@@ -237,23 +237,23 @@ robot_arm_control_ros2_practice/
 
 先把这张表背熟，后面写代码会顺很多：
 
-| ROS1 | ROS2 |
-| --- | --- |
-| `catkin_make` / `catkin build` | `colcon build` |
-| `catkin_ws/src` | `ros2_ws/src` |
+| ROS1                             | ROS2                                 |
+| -------------------------------- | ------------------------------------ |
+| `catkin_make` / `catkin build`   | `colcon build`                       |
+| `catkin_ws/src`                  | `ros2_ws/src`                        |
 | `package.xml` + `CMakeLists.txt` | 仍然是 `package.xml` + `CMakeLists.txt` |
-| `roscore` | 通常不需要单独启动 master |
-| `rosrun pkg node` | `ros2 run pkg node` |
-| `roslaunch pkg file.launch` | `ros2 launch pkg file.launch.py` |
-| `rosnode list` | `ros2 node list` |
-| `rostopic list` | `ros2 topic list` |
-| `rostopic echo` | `ros2 topic echo` |
-| `rostopic pub` | `ros2 topic pub` |
-| `rosparam` | `ros2 param` |
-| `ros::NodeHandle` | `rclcpp::Node` |
-| `ros::Publisher` | `rclcpp::Publisher<T>::SharedPtr` |
-| `ros::Subscriber` | `rclcpp::Subscription<T>::SharedPtr` |
-| `ros::Timer` | `rclcpp::TimerBase::SharedPtr` |
+| `roscore`                        | 通常不需要单独启动 master                     |
+| `rosrun pkg node`                | `ros2 run pkg node`                  |
+| `roslaunch pkg file.launch`      | `ros2 launch pkg file.launch.py`     |
+| `rosnode list`                   | `ros2 node list`                     |
+| `rostopic list`                  | `ros2 topic list`                    |
+| `rostopic echo`                  | `ros2 topic echo`                    |
+| `rostopic pub`                   | `ros2 topic pub`                     |
+| `rosparam`                       | `ros2 param`                         |
+| `ros::NodeHandle`                | `rclcpp::Node`                       |
+| `ros::Publisher`                 | `rclcpp::Publisher<T>::SharedPtr`    |
+| `ros::Subscriber`                | `rclcpp::Subscription<T>::SharedPtr` |
+| `ros::Timer`                     | `rclcpp::TimerBase::SharedPtr`       |
 
 ---
 
