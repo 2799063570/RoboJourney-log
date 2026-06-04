@@ -1,1 +1,26 @@
 ompl/
+
+# Obsidian local workspace state
+.obsidian/workspace.json
+
+# Build outputs and IDE cache
+**/x64/
+**/Debug/
+**/Release/
+**/.vs/
+*.exe
+*.pdb
+*.obj
+*.ilk
+*.idb
+*.tlog
+*.lastbuildstate
+*.recipe
+*.suo
+*.vsidx
+*.ipch
+*.log
+
+# Local editor/system noise
+desktop.ini
+Thumbs.db
