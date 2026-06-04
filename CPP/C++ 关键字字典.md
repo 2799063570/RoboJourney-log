@@ -914,9 +914,73 @@ ___
 
 ## 🧵 6.并发与多线程 (Concurrency & Multithreading)
 
+#### `std::mutex`
+
+`std::mutex`（Mutual Exclusion，互斥量/互斥锁）是 C++11 标准库 `<mutex>` 中提供的最基础、最核心的**多线程同步原语**。
+
+它的核心职责非常单一：**确保在同一时刻，只有一个线程能够访问特定的共享资源（这块区域通常被称为“临界区”）。**
+
+`std::mutex` 的接口非常精简，最常用的只有三个核心方法：
+- **`lock()`**
+    - **作用**：尝试获取互斥锁。
+    - **行为**：如果锁当前是空闲的，线程就会获取锁并继续执行；如果锁已经被其他线程占有，当前线程就会在这里**阻塞（休眠）**，将 CPU 资源让给其他线程，直到获取到锁为止。    
+- **`unlock()`**
+    - **作用**：释放互斥锁。
+    - **行为**：将锁的状态重置为空闲。**注意**：只有当前持有锁的线程才有资格调用 `unlock()`。释放后，如果有其他线程在阻塞等待这个锁，操作系统会唤醒其中一个线程去竞争这把锁。
+- **`try_lock()`**
+    - **作用**：尝试获取互斥锁（非阻塞版本）。
+    - **行为**：如果锁是空闲的，获取锁并返回 `true`。如果锁被占用，它**不会阻塞**当前线程，而是立刻返回 `false`。这在线程不想死等，想在拿不到锁的时候去处理其他任务时非常有用。
+示例：
+如果没有 `my_mutex.lock()` 和 `unlock()`，两个线程同时读写 `shared_counter`，最终的结果往往会小于 20000，这就是典型的**数据竞争**。
+```cpp
+#include <iostream>
+#include <thread>
+#include <mutex>
+
+std::mutex my_mutex;
+int shared_counter = 0; // 共享资源
+
+void increment_counter(int iterations) {
+    for (int i = 0; i < iterations; ++i) {
+        my_mutex.lock();   // 进入临界区前加锁
+        
+        // --- 临界区开始 ---
+        shared_counter++;  // 此时绝对安全，不会有其他线程同时修改
+        // --- 临界区结束 ---
+        
+        my_mutex.unlock(); // 离开临界区后解锁
+    }
+}
+
+int main() {
+    std::thread t1(increment_counter, 10000);
+    std::thread t2(increment_counter, 10000);
+
+    t1.join();
+    t2.join();
+
+    std::cout << "Final counter value: " << shared_counter << std::endl; 
+    // 结果一定是 20000
+    return 0;
+}
+```
+
+##### `std::mutex` 的使用禁忌与局限
+
+- **不能被拷贝或移动**：`std::mutex` 内部通常封装了操作系统级别的底层同步机制（如 Linux 的 pthread_mutex，Windows 的 Critical Section）。因此，你**不能**拷贝（Copy）或移动（Move）一个 `std::mutex` 对象。
+    
+- **同一个线程不能连续加锁两次**：如果一个线程在调用 `lock()` 获取了 `std::mutex` 后，没有 `unlock()` 就再次调用 `lock()`，会导致**死锁（Deadlock）**，程序会卡死。
+    
+- **异常安全问题**：正如之前在 `lock_guard` 中提到的，如果在 `lock()` 和 `unlock()` 之间的代码抛出了异常，或者因为提前 `return` 忘记调用 `unlock()`，锁就永远不会被释放。这就是为什么在现代 C++ 中，**绝对不推荐直接调用 `lock()` 和 `unlock()`**，而是应该配合 `std::lock_guard` 或 `std::unique_lock` 来实现 RAII 自动管理。
+
+#### std::lock_guard
+
+`std::lock_guard` 是 C++11 引入的一个模板类，定义在 `<mutex>` 头文件中。如果说 `std::mutex` 是那把锁，那么 `std::lock_guard` 就是一个**极其尽责且永远不会忘记归还钥匙的“自动管家”**。
+
+
 #### `std::thread`
 
-C++11 引入了 `<thread>` 头文件，使得 C++ 在语言层面原生支持多线程编程，不再依赖平台特定的 API（如 `pthread` 或 Windows API）。`std::thread` 用于创建一个新的线程执行流。
+C++11 引入了 `<thread>` 头文件，使得 `C++` 在语言层面原生支持多线程编程，不再依赖平台特定的 API（如 `pthread` 或 `Windows API`）。`std::thread` 用于创建一个新的线程执行流。
 
 **基本用法：** `std::thread` 接受一个**可调用对象**（函数、Lambda 表达式、函数对象）作为参数来启动线程。
 **关键操作：**
