@@ -860,6 +860,327 @@ struct Hash<int> {
 - 继承、复合、委托分别适合什么场景？
 - 为什么基类析构函数常常需要是 `virtual`？
 
+## 面试/复习问题答案
+
+### 1. OOP 和 OOD 的区别是什么？
+
+OOP 是面向对象编程，关注“怎么用代码实现对象”。核心是封装、继承、多态。
+
+OOD 是面向对象设计，关注“类应该怎么设计、对象之间怎么协作”。核心是高内聚、低耦合、可扩展。
+
+简单记：
+
+```text
+OOD 是设计思想
+OOP 是代码实现
+```
+
+### 2. 为什么构造函数推荐使用初始化列表？
+
+因为成员变量在进入构造函数函数体之前就已经被初始化了。
+
+如果在函数体里赋值，本质是“先默认初始化，再赋值”：
+
+```cpp
+Complex::Complex(double r, double i) {
+    re = r;
+    im = i;
+}
+```
+
+初始化列表更直接：
+
+```cpp
+Complex::Complex(double r, double i)
+    : re(r), im(i) {}
+```
+
+而且有些成员只能用初始化列表，例如：
+
+```cpp
+const int x;
+int& ref;
+```
+
+### 3. `const` 成员函数的作用是什么？
+
+`const` 成员函数承诺：这个函数不会修改对象内部状态。
+
+```cpp
+double real() const {
+    return re;
+}
+```
+
+作用：
+
+- 让 `const` 对象也能调用这个函数。
+- 明确告诉使用者：这个函数只是读取，不会修改对象。
+- 帮助编译器检查误修改。
+
+例如：
+
+```cpp
+const Complex c(1, 2);
+c.real(); // OK
+```
+
+如果 `real()` 没有加 `const`，这里就不能调用。
+
+### 4. 为什么 `operator<<` 通常写成非成员函数？
+
+因为左操作数是 `ostream`，不是你的类对象。
+
+```cpp
+std::cout << c;
+```
+
+等价于：
+
+```cpp
+operator<<(std::cout, c);
+```
+
+如果写成成员函数，会更像：
+
+```cpp
+c.operator<<(std::cout);
+```
+
+这不符合正常输出语义。
+
+所以通常写成非成员函数：
+
+```cpp
+std::ostream& operator<<(std::ostream& os, const Complex& c) {
+    return os << c.real() << "+" << c.imag() << "i";
+}
+```
+
+返回 `std::ostream&` 是为了支持连续输出：
+
+```cpp
+std::cout << c1 << c2 << std::endl;
+```
+
+### 5. 什么是浅拷贝？什么是深拷贝？
+
+浅拷贝是只复制指针值，不复制指针指向的内容。
+
+```text
+a.data ----> "hello"
+b.data ----> 同一块 "hello"
+```
+
+问题是两个对象共享同一块内存，析构时可能重复释放。
+
+深拷贝是重新分配一块内存，并复制内容。
+
+```text
+a.data ----> "hello"
+b.data ----> 另一块 "hello"
+```
+
+这样两个对象互不影响，各自管理自己的资源。
+
+### 6. 为什么带指针成员的类需要析构函数？
+
+因为类自己申请了堆内存，就必须自己释放。
+
+```cpp
+class String {
+private:
+    char* data;
+};
+```
+
+如果构造函数里有：
+
+```cpp
+data = new char[100];
+```
+
+析构函数里就应该有：
+
+```cpp
+~String() {
+    delete[] data;
+}
+```
+
+否则对象销毁时，只会销毁指针变量本身，不会释放它指向的堆内存，造成内存泄漏。
+
+### 7. 拷贝构造和拷贝赋值有什么区别？
+
+拷贝构造是“用已有对象创建新对象”。
+
+```cpp
+String s1("hello");
+String s2(s1); // 拷贝构造
+```
+
+拷贝赋值是“两个已经存在的对象之间赋值”。
+
+```cpp
+String s1("hello");
+String s2("world");
+s2 = s1; // 拷贝赋值
+```
+
+简单记：
+
+```text
+拷贝构造：对象还没出生，用别人初始化自己
+拷贝赋值：对象已经存在，把自己的内容改成别人
+```
+
+拷贝赋值还需要特别处理自我赋值：
+
+```cpp
+if (this == &rhs) {
+    return *this;
+}
+```
+
+### 8. `new` 和 `delete` 分别做了哪些事情？
+
+`new` 做两件事：
+
+```text
+1. 分配内存
+2. 调用构造函数
+```
+
+大致相当于：
+
+```cpp
+void* mem = operator new(sizeof(Complex));
+Complex* p = static_cast<Complex*>(mem);
+p->Complex::Complex(1, 2);
+```
+
+`delete` 也做两件事：
+
+```text
+1. 调用析构函数
+2. 释放内存
+```
+
+大致相当于：
+
+```cpp
+p->~Complex();
+operator delete(p);
+```
+
+数组要对应：
+
+```cpp
+new[] -> delete[]
+new   -> delete
+```
+
+### 9. `static` 成员函数为什么不能访问普通成员变量？
+
+因为 `static` 成员函数属于类，不属于某个具体对象。
+
+普通成员变量属于对象，每个对象都有自己的一份。
+
+```cpp
+class Account {
+private:
+    double balance;
+    static double rate;
+};
+```
+
+`balance` 必须依赖某个具体对象：
+
+```cpp
+Account a;
+// a.balance;
+```
+
+但 `static` 函数没有 `this` 指针，不知道你要访问哪个对象的 `balance`。
+
+所以它只能直接访问 `static` 成员变量。
+
+### 10. 继承、复合、委托分别适合什么场景？
+
+继承表示 is-a：
+
+```text
+Circle is a Shape
+```
+
+适合表达“子类是一种父类”。
+
+```cpp
+class Circle : public Shape {};
+```
+
+复合表示 has-a：
+
+```text
+Car has an Engine
+```
+
+适合表达“一个类拥有另一个类对象”。
+
+```cpp
+class Car {
+private:
+    Engine engine;
+};
+```
+
+委托表示把任务交给另一个对象：
+
+```text
+String delegates to StringRep
+```
+
+适合隐藏实现、降低依赖、共享实现。
+
+```cpp
+class String {
+private:
+    StringRep* rep;
+};
+```
+
+简单记：
+
+```text
+继承：我是你
+复合：我有你
+委托：我让你帮我做
+```
+
+### 11. 为什么基类析构函数常常需要是 `virtual`？
+
+如果你会通过基类指针删除派生类对象，基类析构函数必须是 `virtual`。
+
+例如：
+
+```cpp
+Shape* p = new Circle();
+delete p;
+```
+
+如果 `Shape` 的析构函数不是虚函数，可能只调用 `Shape` 的析构函数，不调用 `Circle` 的析构函数，导致派生类资源没有正确释放。
+
+正确写法：
+
+```cpp
+class Shape {
+public:
+    virtual ~Shape() = default;
+};
+```
+
+只要一个类打算作为多态基类使用，析构函数通常就应该写成 `virtual`。
+
 ## 最小复习模板
 
 复习一个 C++ 类时，按这个顺序检查：
