@@ -27,14 +27,47 @@ status: active
 
 ## 当前策略
 
-主线采用 **4 周加速版**。
+主线从 **4 周加速版** 升级为 **基础闭环 + 进阶扩展版**。
 
-如果某一周明显吃力，就退回 8 周版节奏，不跳过验收标准。我们的原则是：
+原因：
+
+- 你已经会一些 C++ 和 ROS1。
+- ROS2 功能包创建、基础节点学习进度比原计划更快。
+- 当前只用约 1 周就进入第 3 周末，说明可以把项目从“ROS2 入门控制演示”升级为“机器人系统综合项目”。
+
+新的策略不是简单加快，而是分层推进：
+
+| 阶段 | 定位 | 目标 |
+|---|---|---|
+| 第 1-4 周 | 基础闭环 | ROS2 控制节点 + URDF + RViz2 能完整跑通 |
+| 第 5-7 周 | 机械臂进阶 | MoveIt2 + ros2_control + trajectory controller |
+| 第 8 周 | 移动机器人扩展 | Nav2 定位导航基础，理解移动机器人系统 |
+| 第 9 周 | 视觉与深度学习扩展 | YOLO 经验迁移到 ROS2 感知链路，补 PyTorch / LibTorch |
+| 第 10 周 | C++ 工程强化 | 现代 C++、数据结构算法、编码风格、项目重构 |
+
+我们的原则是：
 
 - 每天 2 到 3 小时
 - 每天必须有一个可运行的小结果
 - 每周必须有一个可展示的阶段成果
 - 不追求一次写完美，先跑通，再重构，再解释清楚
+- 进阶内容要服务项目展示，不做散乱学习
+- 学过的知识必须能写进 README、简历和面试讲解
+
+---
+
+## 当前进度判断
+
+当前真实状态：
+
+- C++ 有一定基础，但还需要补现代 C++、工程风格、数据结构算法。
+- ROS1 有基础，迁移 ROS2 时重点关注 `rclcpp`、参数、launch、QoS、生命周期和组件化。
+- ROS2 基础推进较快，已经接近第 3 周末。
+- 后续不应该只做 2 自由度 RViz 演示，而应加入 MoveIt2、ros2_control 和机器人系统扩展。
+
+当前最合适的目标升级为：
+
+> 做一个“ROS2 机械臂控制与规划综合项目”：包含自写控制节点、URDF/RViz2 可视化、MoveIt2 规划、ros2_control 控制器接口，并扩展理解移动机器人导航和视觉感知链路。
 
 ---
 
@@ -81,6 +114,38 @@ robot_arm_control_ros2_practice/
 │   │   └── display.launch.py
 │   └── rviz/
 │       └── simple_arm.rviz
+├── simple_arm_moveit_config/
+│   ├── config/
+│   │   ├── joint_limits.yaml
+│   │   ├── kinematics.yaml
+│   │   ├── ompl_planning.yaml
+│   │   └── ros2_controllers.yaml
+│   ├── launch/
+│   │   ├── demo.launch.py
+│   │   └── move_group.launch.py
+│   └── srdf/
+│       └── simple_arm.srdf
+├── simple_arm_bringup/
+│   ├── launch/
+│   │   ├── sim_control.launch.py
+│   │   ├── moveit_control.launch.py
+│   │   └── full_demo.launch.py
+│   └── config/
+│       └── controllers.yaml
+├── robot_vision_learning/
+│   ├── scripts/
+│   │   ├── yolo_ros2_node.py
+│   │   └── image_subscriber.py
+│   └── notes/
+│       ├── pytorch_review.md
+│       └── libtorch_notes.md
+├── mobile_robot_learning/
+│   ├── notes/
+│   │   ├── nav2_overview.md
+│   │   ├── localization_amcl.md
+│   │   └── slam_toolbox.md
+│   └── launch/
+│       └── nav2_demo_notes.md
 └── README.md
 ```
 
@@ -905,11 +970,409 @@ README 必须包含：
 
 ---
 
+## 第 5 周：MoveIt2 机械臂运动规划
+
+### 本周定位
+
+第 5 周开始从“自己写控制链路”进入“工业常用规划框架”。目标不是一口气掌握 MoveIt2 源码，而是先把一个机械臂模型接入 MoveIt2，能在 RViz2 中完成规划和执行。
+
+本周目标：
+
+- [ ] 理解 MoveIt2 的核心组成：MoveGroup、PlanningScene、PlanningPipeline、Planner、TrajectoryExecution
+- [ ] 为 `simple_arm_description` 生成 MoveIt2 配置包
+- [ ] 能在 RViz2 MotionPlanning 插件中拖动目标位姿或关节目标
+- [ ] 能使用 OMPL 完成一次规划
+- [ ] 能解释 MoveIt2 和自己写的 `vel_to_pos_node` 的区别
+
+### MoveIt2 核心链路
+
+```text
+RobotModel / SRDF
+  -> PlanningScene
+  -> PlanningPipeline
+  -> OMPL Planner
+  -> RobotTrajectory
+  -> TrajectoryExecution
+  -> ros2_control controller
+```
+
+今天先理解这些概念：
+
+- [ ] `move_group` 节点负责什么
+- [ ] URDF 和 SRDF 的区别
+- [ ] Planning Group 是什么
+- [ ] Planning Scene 为什么要维护碰撞环境
+- [ ] OMPL planner 在 MoveIt2 中处于哪一层
+
+### 本周实作任务
+
+- [ ] 使用 MoveIt Setup Assistant 或手动方式创建 `simple_arm_moveit_config`
+- [ ] 配置 planning group，例如 `arm`
+- [ ] 配置 `joint_limits.yaml`
+- [ ] 配置 `kinematics.yaml`
+- [ ] 配置 `ompl_planning.yaml`
+- [ ] 启动 MoveIt2 demo launch
+- [ ] 在 RViz2 中完成 3 次不同目标的规划
+- [ ] 修改 planner，例如 RRTConnect、RRTstar，对比规划现象
+- [ ] 写一个 `moveit_cpp_demo.cpp`，使用 `MoveGroupInterface` 设置关节目标并调用 `plan()`
+
+验收：
+
+- [ ] MoveIt2 demo 能启动
+- [ ] RViz2 中能看到 MotionPlanning 面板
+- [ ] 能完成一次 OMPL 规划
+- [ ] 能写一个 C++ MoveGroupInterface demo
+- [ ] README 增加 MoveIt2 运行说明
+
+---
+
+## 第 6 周：ros2_control 与控制器接口
+
+### 本周定位
+
+第 6 周把机械臂从“RViz2 可视化”和“MoveIt2 规划”推进到“控制器接口”。`ros2_control` 是 ROS2 中连接上层规划和底层硬件/仿真的关键框架。
+
+本周目标：
+
+- [ ] 理解 `ros2_control`、`controller_manager`、`hardware_interface`
+- [ ] 配置 `joint_state_broadcaster`
+- [ ] 配置 `joint_trajectory_controller`
+- [ ] 让 MoveIt2 输出轨迹发送到 controller
+- [ ] 能解释 `FollowJointTrajectory` action 的作用
+
+核心概念：
+
+| 概念 | 作用 |
+|---|---|
+| `ros2_control` | 控制框架 |
+| `hardware_interface` | 抽象真实硬件或仿真硬件 |
+| `controller_manager` | 管理控制器加载、启动、停止 |
+| `joint_state_broadcaster` | 发布关节状态 |
+| `joint_trajectory_controller` | 接收轨迹并执行 |
+| `FollowJointTrajectory` | MoveIt2 和控制器之间常用 action 接口 |
+
+本周任务：
+
+- [ ] 在 URDF/xacro 中加入 `ros2_control` 标签
+- [ ] 写 `ros2_controllers.yaml`
+- [ ] 启动 `controller_manager`
+- [ ] 加载 `joint_state_broadcaster`
+- [ ] 加载 `joint_trajectory_controller`
+- [ ] 用命令行发送一条简单轨迹
+- [ ] 尝试让 MoveIt2 Execute 接到 controller
+
+验收命令方向：
+
+```bash
+ros2 control list_controllers
+ros2 control list_hardware_interfaces
+ros2 action list
+ros2 action info /joint_trajectory_controller/follow_joint_trajectory
+```
+
+本周验收：
+
+- [ ] 能看到 controller 已 active
+- [ ] 能解释 broadcaster 和 controller 的区别
+- [ ] 能发送一条 FollowJointTrajectory 测试轨迹
+- [ ] 能说明 MoveIt2 规划结果如何进入 ros2_control
+
+---
+
+## 第 7 周：机械臂项目整合与工程化
+
+### 本周定位
+
+第 7 周不再继续堆新概念，而是把前面内容整合成一个完整可展示项目。
+
+最终项目展示链路：
+
+```text
+MoveIt2 target
+  -> OMPL planning
+  -> RobotTrajectory
+  -> FollowJointTrajectory
+  -> joint_trajectory_controller
+  -> joint states
+  -> robot_state_publisher
+  -> RViz2
+```
+
+同时保留自写控制链路：
+
+```text
+/joint_velocity_cmd
+  -> vel_to_pos_node
+  -> /joint_position_cmd
+  -> /joint_states
+  -> RViz2
+```
+
+本周任务：
+
+- [ ] 建立 `simple_arm_bringup`
+- [ ] 统一 launch 文件
+- [ ] 整理 config 文件
+- [ ] 写系统架构图
+- [ ] 写运行脚本
+- [ ] 写 README 完整复现步骤
+- [ ] 写简历项目描述
+- [ ] 写 3 分钟面试讲解稿
+
+本周验收：
+
+- [ ] 一条 launch 能启动完整演示
+- [ ] README 能让别人复现
+- [ ] 能讲清楚自写控制、MoveIt2、ros2_control 三者关系
+- [ ] 项目可以作为简历核心项目
+
+---
+
+## 第 8 周：移动机器人定位导航 Nav2 入门
+
+### 为什么要学移动机器人导航
+
+你的主线是机械臂，但机器人岗位常常同时看 ROS2 基础、机械臂 MoveIt2、移动机器人 Nav2、TF、URDF、sensor 和 map。因此 Nav2 不需要现在做深，但应该建立系统认知。
+
+本周目标：
+
+- [ ] 理解移动机器人导航栈整体结构
+- [ ] 理解 map、odom、base_link、laser_frame 的 TF 关系
+- [ ] 理解 AMCL 定位
+- [ ] 理解 costmap
+- [ ] 理解 planner、controller、behavior tree
+- [ ] 跑通一个 Nav2 仿真 demo 或至少完成架构笔记
+
+核心链路：
+
+```text
+map
+  -> localization / AMCL
+  -> global costmap
+  -> global planner
+  -> local costmap
+  -> controller
+  -> cmd_vel
+  -> mobile base
+```
+
+本周任务：
+
+- [ ] 学习 `map -> odom -> base_link` TF 树
+- [ ] 学习 AMCL 输入输出
+- [ ] 学习 global planner 和 local controller 的区别
+- [ ] 学习 costmap 的 obstacle layer、inflation layer
+- [ ] 整理 Nav2 和 MoveIt2 的对比
+
+验收：
+
+- [ ] 能画出 Nav2 架构图
+- [ ] 能解释定位和导航的区别
+- [ ] 能解释 `cmd_vel` 在移动机器人中的作用
+- [ ] 能说明机械臂控制和移动机器人控制的共同点与区别
+
+---
+
+## 第 9 周：YOLO、PyTorch 与 LibTorch 机器人感知扩展
+
+### 是否需要学习 PyTorch / LibTorch
+
+需要，但学习目标要明确：
+
+- 你做过 YOLO，说明视觉项目经验可以成为优势。
+- 对机器人方向来说，更重要的是“如何把视觉结果接入 ROS2 系统”。
+- PyTorch 用于训练和 Python 推理。
+- LibTorch 用于 C++ 部署和 ROS2 C++ 节点结合。
+
+本周目标：
+
+- [ ] 复习 PyTorch tensor、model、checkpoint、inference
+- [ ] 理解 YOLO 输出：bbox、class、confidence
+- [ ] 写一个 ROS2 Python image subscriber
+- [ ] 写一个 YOLO ROS2 detection node 设计草图
+- [ ] 初步了解 LibTorch C++ 推理流程
+- [ ] 思考视觉检测如何和机械臂抓取任务连接
+
+学习重点：
+
+| 内容 | 学到什么程度 |
+|---|---|
+| Python | 会写 ROS2 Python 节点、图像订阅、结果发布 |
+| PyTorch | 会加载模型、前处理、推理、后处理 |
+| YOLO | 会解释输入输出和检测结果 |
+| LibTorch | 了解 C++ 加载 TorchScript 模型的流程 |
+| OpenCV | 会做图像读取、显示、坐标绘制 |
+| ROS2 image pipeline | 理解 `sensor_msgs/Image`、`cv_bridge` |
+
+和机械臂项目的连接：
+
+```text
+camera image
+  -> YOLO detection
+  -> object bbox
+  -> target center
+  -> camera coordinate estimate
+  -> TF transform to robot base
+  -> MoveIt2 grasp planning
+```
+
+本周验收：
+
+- [ ] 能解释 PyTorch 和 LibTorch 的区别
+- [ ] 能说明 YOLO 检测结果如何发布成 ROS2 topic
+- [ ] 能写出视觉到机械臂抓取的系统框图
+- [ ] 能判断哪些部分现在做，哪些部分以后再做
+
+---
+
+## 第 10 周：C++ 数据结构算法、现代 C++ 与编码风格
+
+### 是否需要学数据结构和算法
+
+需要，但不需要一开始刷很难的算法题。机器人项目中最常用的是：
+
+- `vector`
+- `deque`
+- `queue`
+- `map` / `unordered_map`
+- `priority_queue`
+- 图搜索
+- BFS / DFS
+- Dijkstra / A*
+- 简单排序和查找
+- 数值计算中的矩阵、向量、插值
+
+对机器人方向，优先级最高的是：
+
+1. 能写清楚数据结构的用途
+2. 能读懂算法复杂度
+3. 能实现 A*、Dijkstra、RRT 的基础版本
+4. 能在项目里解释为什么选这个结构
+
+### 现代 C++ 必学内容
+
+| 内容 | 项目用途 |
+|---|---|
+| `auto` | 简化复杂类型 |
+| range-for | 遍历容器 |
+| `nullptr` | 替代 `NULL` |
+| `enum class` | 更安全的枚举 |
+| `std::unique_ptr` | 独占资源 |
+| `std::shared_ptr` | ROS2 中广泛使用 |
+| lambda | 替代部分 `std::bind` |
+| `std::function` | 保存回调 |
+| move semantics | 避免不必要拷贝 |
+| `const` correctness | 接口设计 |
+| RAII | 资源生命周期管理 |
+| `optional` / `variant` | 表达可能为空或多类型结果 |
+
+### C++ 编写风格
+
+项目中应逐步建立这些习惯：
+
+- [ ] 类名使用 `PascalCase`
+- [ ] 函数名使用 `snake_case` 或项目统一风格
+- [ ] 成员变量使用 `_` 后缀，例如 `timer_`
+- [ ] 头文件只放声明，源文件放实现
+- [ ] public 接口少而清晰
+- [ ] 查询函数加 `const`
+- [ ] 大对象参数用 `const T&`
+- [ ] 避免裸 `new/delete`，优先智能指针和标准容器
+- [ ] CMake 用 target 风格
+- [ ] 每个模块有最小测试
+- [ ] README 写清楚运行方式
+
+本周任务：
+
+- [ ] 重构 `robot_control_cpp`，检查命名、const、传参
+- [ ] 把 `std::bind` 示例改写一个 lambda 版本
+- [ ] 为 `RobotState`、`SafetyLimiter`、`TrajectoryBuffer` 写更清楚的接口注释
+- [ ] 实现一个 A* 或 Dijkstra 小 demo
+- [ ] 整理 `C++ 面向对象复习` 与项目代码的对应关系
+
+验收：
+
+- [ ] 能解释 `shared_ptr` 为什么在 ROS2 中常见
+- [ ] 能解释 lambda 和 `std::bind` 的关系
+- [ ] 能解释 `vector`、`deque`、`queue` 在项目中分别适合哪里
+- [ ] 能说出自己的 C++ 编码规范
+
+---
+
+## 进阶内容优先级
+
+如果时间有限，按这个顺序推进：
+
+1. MoveIt2 基础规划
+2. ros2_control + joint_trajectory_controller
+3. 现代 C++ 和项目重构
+4. Nav2 架构理解
+5. PyTorch / YOLO ROS2 感知链路
+6. LibTorch C++ 推理
+7. 更深入的数据结构算法
+
+原因：
+
+- MoveIt2 和 ros2_control 最贴近机械臂控制项目。
+- 现代 C++ 会直接提升代码质量。
+- Nav2 和视觉是横向扩展，适合做机器人系统认知。
+- LibTorch 价值高，但部署成本也高，不应压过主线。
+
+---
+
+## 学习资源选择
+
+每个方向只选“一个主线资源 + 官方文档 + 项目实作”，避免资料过载。
+
+| 方向 | 学习方式 |
+|---|---|
+| ROS2 基础 | 官方 tutorials + 自己写节点 |
+| MoveIt2 | MoveIt2 tutorials + 自己的 simple arm 配置 |
+| ros2_control | 官方 demos + 自己的 joint trajectory controller |
+| Nav2 | Nav2 getting started + 架构笔记 |
+| PyTorch / YOLO | 复用已有 YOLO 经验，补 ROS2 图像节点 |
+| LibTorch | 先了解 TorchScript C++ 推理，不急着完整部署 |
+| 现代 C++ | Effective C++ / 侯捷课程 + 项目重构 |
+| 数据结构算法 | 机器人常用算法优先：A*、Dijkstra、RRT、队列、图 |
+
+不建议现在做的事：
+
+- [ ] 不要同时开多个大型项目
+- [ ] 不要一开始就啃完整 MoveIt2 源码
+- [ ] 不要把 Nav2 做成第二个主线
+- [ ] 不要为了学 LibTorch 牺牲 MoveIt2 和 ros2_control
+- [ ] 不要随机刷 C++ 面试题，要和项目代码绑定
+
+---
+
+## 新版简历项目定位
+
+项目名称可以升级为：
+
+> 基于 ROS2、MoveIt2 与 ros2_control 的机械臂控制与规划系统
+
+简历描述方向：
+
+```text
+实现了一个基于 ROS2 的机械臂控制与规划项目，包含纯 C++ 控制库、ROS2 控制节点、URDF/RViz2 可视化、MoveIt2 运动规划和 ros2_control 控制器接口。项目中完成了速度到位置的控制闭环、关节状态发布、TF 可视化、OMPL 规划配置以及 FollowJointTrajectory 控制链路，并进一步调研 Nav2 移动机器人导航和 YOLO 视觉感知接入 ROS2 的扩展方案。
+```
+
+面试讲解升级版：
+
+1. 我先用纯 C++ 写控制库，保证核心逻辑可测试。
+2. 然后用 ROS2 节点把控制逻辑接入 topic、timer、parameter 和 launch。
+3. 再用 URDF、JointState、robot_state_publisher 和 RViz2 做可视化闭环。
+4. 接着加入 MoveIt2，让系统具备规划能力。
+5. 再接 ros2_control，让规划轨迹能进入标准控制器接口。
+6. 最后扩展学习 Nav2 和 YOLO 感知链路，形成对机器人系统的整体认识。
+
+---
+
 ## 每天执行模板
 
 每天开始前先写：
 
-```markdown
+~~~markdown
 ## 2026-xx-xx
 
 ### 今日目标
@@ -933,7 +1396,7 @@ README 必须包含：
 ### 明天第一步
 
 - 
-```
+~~~
 
 每天结束时必须留下三样东西：
 
@@ -951,6 +1414,9 @@ README 必须包含：
 2. 控制库里分了状态管理、安全限幅、轨迹插值、轨迹缓存和雅可比求解几个模块。
 3. 然后我把纯 C++ 控制逻辑迁移成 ROS2 节点，实现速度命令到位置命令的转换。
 4. 最后用 URDF、RViz2 和 TF2 做简单机械臂可视化，形成一个完整的控制链路。
+5. 在基础闭环跑通后，加入 MoveIt2，让机械臂具备运动规划能力。
+6. 再接入 ros2_control 和 joint trajectory controller，让规划轨迹进入标准控制器接口。
+7. 最后横向补 Nav2、YOLO/PyTorch/LibTorch 和现代 C++，把项目扩展成机器人系统能力展示。
 
 ---
 
@@ -977,9 +1443,12 @@ README 必须包含：
 
 1. 纯 C++ 控制库跑通
 2. `vel_to_pos_node` 跑通
-3. README 写清楚
-4. RViz2 可视化
-5. 更复杂的雅可比和面试扩展
+3. RViz2 可视化
+4. README 写清楚
+5. MoveIt2 基础规划
+6. ros2_control 控制器接口
+7. 现代 C++ 和项目重构
+8. Nav2 / 视觉 / LibTorch 扩展
 
 ---
 
