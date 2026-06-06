@@ -1006,15 +1006,125 @@ RobotModel / SRDF
 
 ### 本周实作任务
 
-- [ ] 使用 MoveIt Setup Assistant 或手动方式创建 `simple_arm_moveit_config`
-- [ ] 配置 planning group，例如 `arm`
-- [ ] 配置 `joint_limits.yaml`
-- [ ] 配置 `kinematics.yaml`
-- [ ] 配置 `ompl_planning.yaml`
-- [ ] 启动 MoveIt2 demo launch
-- [ ] 在 RViz2 中完成 3 次不同目标的规划
-- [ ] 修改 planner，例如 RRTConnect、RRTstar，对比规划现象
-- [ ] 写一个 `moveit_cpp_demo.cpp`，使用 `MoveGroupInterface` 设置关节目标并调用 `plan()`
+### Day 1：MoveIt2 概念和安装检查
+
+今天先不要急着配置机械臂，先确认环境和概念。
+
+- [ ] 确认 ROS2 发行版和 MoveIt2 是否匹配
+- [ ] 安装或检查 `moveit`、`moveit_setup_assistant`
+- [ ] 跑一个官方 MoveIt2 demo 或 tutorial
+- [ ] 记录 `move_group`、RViz2 MotionPlanning、PlanningScene 的作用
+- [ ] 在笔记中画出 MoveIt2 核心链路
+
+验收：
+
+- [ ] 能启动一个 MoveIt2 示例
+- [ ] 能说清楚 MoveIt2 主要负责规划，不直接等同于底层控制器
+- [ ] 能解释 URDF 和 SRDF 的区别
+
+### Day 2：检查 simple arm 模型是否适合 MoveIt2
+
+今天检查第 4 周做的机械臂模型。
+
+- [ ] 检查 `simple_2dof_arm.urdf.xacro`
+- [ ] 确认 joint 类型、axis、limit 是否完整
+- [ ] 确认 link / joint 名称清晰
+- [ ] 用 `xacro` 展开模型
+- [ ] 用 RViz2 显示模型
+- [ ] 记录哪些地方需要为了 MoveIt2 修改
+
+验收：
+
+- [ ] URDF 能被正常展开
+- [ ] 每个 revolute joint 都有 limit
+- [ ] 能解释为什么 MoveIt2 需要 joint limits
+
+### Day 3：创建 simple_arm_moveit_config
+
+目标是生成或手写 MoveIt2 配置包。
+
+- [ ] 使用 MoveIt Setup Assistant 或手动创建 `simple_arm_moveit_config`
+- [ ] 配置 planning group：`arm`
+- [ ] 配置 planning joints：`joint1`、`joint2`
+- [ ] 生成或整理 SRDF
+- [ ] 生成 `joint_limits.yaml`
+- [ ] 生成 `kinematics.yaml`
+- [ ] 生成 `ompl_planning.yaml`
+
+验收：
+
+- [ ] 配置包能被 colcon 编译
+- [ ] 能解释 planning group 是什么
+- [ ] 能在文件里找到 `arm` 对应哪些 joints
+
+### Day 4：启动 MoveIt2 RViz demo
+
+今天目标是看到 MotionPlanning 面板并能规划。
+
+- [ ] 启动 `demo.launch.py`
+- [ ] RViz2 Fixed Frame 设置正确
+- [ ] MotionPlanning 面板加载成功
+- [ ] 选择 planning group
+- [ ] 设置一个关节目标
+- [ ] 点击 Plan
+- [ ] 观察规划轨迹
+
+验收：
+
+- [ ] RViz2 中能看到机械臂
+- [ ] 能规划至少 1 条轨迹
+- [ ] 能说出规划失败时先检查哪几个地方：joint limits、planning group、TF、碰撞模型、日志
+
+### Day 5：OMPL planner 对比
+
+今天重点不是调参到完美，而是理解 MoveIt2 通过 OMPL 调用不同规划器。
+
+- [ ] 找到 `ompl_planning.yaml`
+- [ ] 尝试 RRTConnect
+- [ ] 尝试 RRTstar
+- [ ] 尝试改变 planning time
+- [ ] 对同一个目标重复规划 3 次
+- [ ] 记录规划时间、成功率、路径现象
+
+验收：
+
+- [ ] 能解释 OMPL 是 MoveIt2 的规划插件之一
+- [ ] 能说明 RRTConnect 通常适合快速找可行解
+- [ ] 能说明 RRTstar 更偏向渐进优化，但可能更慢
+
+### Day 6：MoveGroupInterface C++ demo
+
+今天写一个应用层 C++ 节点调用 MoveIt2。
+
+- [ ] 创建 `moveit_cpp_demo.cpp`
+- [ ] 引入 `moveit_ros_planning_interface`
+- [ ] 创建 `MoveGroupInterface`
+- [ ] 设置 planning group
+- [ ] 设置 joint target
+- [ ] 调用 `plan()`
+- [ ] 打印规划是否成功
+
+验收：
+
+- [ ] 能用 `ros2 run` 启动 demo
+- [ ] 能通过代码触发一次规划
+- [ ] 能解释 `MoveGroupInterface` 是应用层接口，不是底层 planner 本身
+
+### Day 7：MoveIt2 复盘和 README
+
+今天把 MoveIt2 变成项目资产。
+
+- [ ] 在 README 增加 MoveIt2 运行命令
+- [ ] 写 MoveIt2 架构图
+- [ ] 写配置包说明
+- [ ] 写 planning group 说明
+- [ ] 写 OMPL planner 对比记录
+- [ ] 写“MoveIt2 与自写控制链路区别”表格
+
+验收：
+
+- [ ] 别人能按 README 启动 MoveIt2 demo
+- [ ] 能用 1 分钟解释 MoveIt2 在项目中的位置
 
 验收：
 
@@ -1053,13 +1163,103 @@ RobotModel / SRDF
 
 本周任务：
 
-- [ ] 在 URDF/xacro 中加入 `ros2_control` 标签
-- [ ] 写 `ros2_controllers.yaml`
-- [ ] 启动 `controller_manager`
+### Day 1：理解 ros2_control 架构
+
+- [ ] 学习 `ros2_control` 总体结构
+- [ ] 区分 hardware、controller、controller_manager
+- [ ] 理解 command interface 和 state interface
+- [ ] 整理 `position`、`velocity`、`effort` 三类接口
+- [ ] 记录 `joint_state_broadcaster` 和 `joint_trajectory_controller` 的职责
+
+验收：
+
+- [ ] 能画出 `MoveIt2 -> controller -> hardware` 的关系
+- [ ] 能解释为什么 MoveIt2 不直接控制电机
+
+### Day 2：在 URDF 中加入 ros2_control 标签
+
+- [ ] 修改 `simple_2dof_arm.urdf.xacro`
+- [ ] 为 joint1、joint2 添加 command interface
+- [ ] 为 joint1、joint2 添加 state interface
+- [ ] 先使用 mock 或 fake hardware
+- [ ] 用 xacro 检查 XML 是否正确
+
+验收：
+
+- [ ] URDF 能展开
+- [ ] 能解释 command interface 是上层写入的命令
+- [ ] 能解释 state interface 是底层反馈的状态
+
+### Day 3：配置 controllers.yaml
+
+- [ ] 创建或整理 `ros2_controllers.yaml`
+- [ ] 配置 `controller_manager`
+- [ ] 配置 `joint_state_broadcaster`
+- [ ] 配置 `joint_trajectory_controller`
+- [ ] 指定 joints：`joint1`、`joint2`
+- [ ] 指定 command interfaces
+- [ ] 指定 state interfaces
+
+验收：
+
+- [ ] YAML 结构清楚
+- [ ] 能解释 controller 名称、type、joints 各自含义
+
+### Day 4：启动 controller_manager
+
+- [ ] 写或修改 launch 文件
+- [ ] 启动 `ros2_control_node`
+- [ ] 加载 `robot_description`
+- [ ] 检查 controller manager 是否存在
+- [ ] 执行 `ros2 control list_hardware_interfaces`
+- [ ] 执行 `ros2 control list_controllers`
+
+验收：
+
+- [ ] 能看到 hardware interfaces
+- [ ] 能看到 controller 处于 configured 或 active 状态
+
+### Day 5：加载并测试 joint_state_broadcaster
+
 - [ ] 加载 `joint_state_broadcaster`
+- [ ] 激活 controller
+- [ ] echo `/joint_states`
+- [ ] 检查 joint name 是否与 URDF 一致
+- [ ] 检查 RViz2 是否能显示状态
+
+验收：
+
+- [ ] `/joint_states` 正常发布
+- [ ] RViz2 模型不报 TF / joint state 错误
+
+### Day 6：测试 joint_trajectory_controller
+
 - [ ] 加载 `joint_trajectory_controller`
-- [ ] 用命令行发送一条简单轨迹
-- [ ] 尝试让 MoveIt2 Execute 接到 controller
+- [ ] 查看 action 列表
+- [ ] 确认 `FollowJointTrajectory` action 存在
+- [ ] 用命令行或小脚本发送一条简单轨迹
+- [ ] 观察 `/joint_states`
+- [ ] 观察 RViz2 中机械臂变化
+
+验收：
+
+- [ ] 能发送一条目标关节轨迹
+- [ ] 能解释 trajectory point 里的 positions 和 time_from_start
+- [ ] 能解释 action goal、feedback、result
+
+### Day 7：连接 MoveIt2 Execute
+
+- [ ] 修改 MoveIt2 controller 配置
+- [ ] 确认 MoveIt2 找到 trajectory controller
+- [ ] 在 RViz2 中 Plan
+- [ ] 点击 Execute
+- [ ] 观察 controller 是否收到轨迹
+- [ ] 记录失败原因和解决方式
+
+验收：
+
+- [ ] MoveIt2 Execute 至少能连到 controller 接口
+- [ ] 能说明 MoveIt2 规划结果如何通过 action 发给 ros2_control
 
 验收命令方向：
 
@@ -1110,14 +1310,112 @@ MoveIt2 target
 
 本周任务：
 
-- [ ] 建立 `simple_arm_bringup`
-- [ ] 统一 launch 文件
-- [ ] 整理 config 文件
-- [ ] 写系统架构图
-- [ ] 写运行脚本
-- [ ] 写 README 完整复现步骤
-- [ ] 写简历项目描述
-- [ ] 写 3 分钟面试讲解稿
+### Day 1：建立 bringup 包
+
+- [ ] 创建 `simple_arm_bringup`
+- [ ] 建立 `launch/`
+- [ ] 建立 `config/`
+- [ ] 把启动相关逻辑从各包中整理出来
+- [ ] 写 `sim_control.launch.py`
+- [ ] 写 `moveit_control.launch.py`
+- [ ] 写 `full_demo.launch.py` 草稿
+
+验收：
+
+- [ ] bringup 包能编译
+- [ ] launch 文件命名清楚
+- [ ] 能解释 description、moveit_config、bringup 三个包各自负责什么
+
+### Day 2：整理 launch 启动顺序
+
+- [ ] 确认 robot_description 从哪里加载
+- [ ] 确认 robot_state_publisher 启动顺序
+- [ ] 确认 controller_manager 启动顺序
+- [ ] 确认 MoveIt2 move_group 启动顺序
+- [ ] 确认 RViz2 启动配置
+- [ ] 给 launch 文件加入必要参数
+
+验收：
+
+- [ ] 能单独启动可视化链路
+- [ ] 能单独启动 ros2_control 链路
+- [ ] 能单独启动 MoveIt2 链路
+
+### Day 3：统一配置文件
+
+- [ ] 检查 `joint_limits.yaml`
+- [ ] 检查 `kinematics.yaml`
+- [ ] 检查 `ompl_planning.yaml`
+- [ ] 检查 `ros2_controllers.yaml`
+- [ ] 删除重复或无效配置
+- [ ] 为每个配置文件写一句说明
+
+验收：
+
+- [ ] 重要配置都能在 README 中解释
+- [ ] 不再依赖“我自己记得这个文件干嘛用”
+
+### Day 4：完整联调
+
+- [ ] 启动 `full_demo.launch.py`
+- [ ] 检查 `/tf`
+- [ ] 检查 `/joint_states`
+- [ ] 检查 controller 状态
+- [ ] 在 MoveIt2 中 Plan
+- [ ] 尝试 Execute
+- [ ] 记录问题清单
+
+验收：
+
+- [ ] 至少有一条完整链路能稳定跑
+- [ ] 所有失败点都有记录，而不是只说“跑不起来”
+
+### Day 5：README 完整复现步骤
+
+README 必须包含：
+
+- [ ] 项目目标
+- [ ] 系统架构图
+- [ ] 包结构说明
+- [ ] 依赖安装
+- [ ] build 命令
+- [ ] source 命令
+- [ ] 自写控制链路运行命令
+- [ ] MoveIt2 规划运行命令
+- [ ] ros2_control 测试命令
+- [ ] 常见问题
+
+验收：
+
+- [ ] 只看 README 可以复现基础演示
+- [ ] README 中没有“看情况”“自己改一下”这种模糊描述
+
+### Day 6：简历描述和面试讲解稿
+
+- [ ] 写 3 行简历项目描述
+- [ ] 写 1 分钟讲解版本
+- [ ] 写 3 分钟讲解版本
+- [ ] 写“项目难点”3 条
+- [ ] 写“如果继续扩展”3 条
+- [ ] 写“我负责/我实现了什么”清单
+
+验收：
+
+- [ ] 能不看文档讲 1 分钟
+- [ ] 能回答为什么用了 MoveIt2 和 ros2_control
+
+### Day 7：项目复盘和下一阶段计划
+
+- [ ] 列出已完成内容
+- [ ] 列出未完成内容
+- [ ] 列出 3 个最值得修的 bug
+- [ ] 列出 3 个最值得加的功能
+- [ ] 决定是否进入 Nav2 / 视觉 / C++ 重构阶段
+
+验收：
+
+- [ ] 项目状态清楚
+- [ ] 下一步不是凭感觉，而是根据清单推进
 
 本周验收：
 
@@ -1158,11 +1456,100 @@ map
 
 本周任务：
 
-- [ ] 学习 `map -> odom -> base_link` TF 树
-- [ ] 学习 AMCL 输入输出
-- [ ] 学习 global planner 和 local controller 的区别
-- [ ] 学习 costmap 的 obstacle layer、inflation layer
-- [ ] 整理 Nav2 和 MoveIt2 的对比
+### Day 1：Nav2 总体架构
+
+- [ ] 阅读 Nav2 概览
+- [ ] 画出 `map -> odom -> base_link` TF 树
+- [ ] 理解 `cmd_vel` 的作用
+- [ ] 理解 navigation goal 的输入
+- [ ] 记录 Nav2 中 planner、controller、recoveries / behaviors 的职责
+
+验收：
+
+- [ ] 能解释定位、规划、控制三个词在移动机器人里的含义
+- [ ] 能说明 Nav2 的输出为什么通常是 `/cmd_vel`
+
+### Day 2：TF 与坐标系
+
+- [ ] 学习 `map` 坐标系
+- [ ] 学习 `odom` 坐标系
+- [ ] 学习 `base_link` 坐标系
+- [ ] 学习 `laser_frame` 或 camera frame
+- [ ] 对比机械臂中的 `base_link`、`link1`、`link2`
+
+验收：
+
+- [ ] 能画出移动机器人 TF 树
+- [ ] 能解释 `map -> odom` 和 `odom -> base_link` 的区别
+
+### Day 3：定位 AMCL
+
+- [ ] 学习 AMCL 的输入：map、laser scan、odom、initial pose
+- [ ] 学习 AMCL 的输出：`map -> odom`
+- [ ] 理解粒子滤波的大概思想
+- [ ] 在笔记中写 AMCL 解决什么问题
+
+验收：
+
+- [ ] 能解释“定位”不是“导航”
+- [ ] 能说明为什么机器人需要初始位姿
+
+### Day 4：Costmap
+
+- [ ] 学习 global costmap
+- [ ] 学习 local costmap
+- [ ] 学习 obstacle layer
+- [ ] 学习 inflation layer
+- [ ] 画出障碍物膨胀示意图
+
+验收：
+
+- [ ] 能解释为什么机器人不能贴着障碍物规划
+- [ ] 能解释 global costmap 和 local costmap 的区别
+
+### Day 5：Planner 和 Controller
+
+- [ ] 学习 global planner 的输入输出
+- [ ] 学习 local controller 的输入输出
+- [ ] 理解路径 path 和速度 command 的区别
+- [ ] 记录 Nav2 中 planner/controller 和 MoveIt2 planner/controller 的异同
+
+验收：
+
+- [ ] 能说明 planner 输出 path，不是直接输出电机控制
+- [ ] 能说明 controller 负责跟踪路径并输出 `cmd_vel`
+
+### Day 6：跑一个 Nav2 demo 或做完整架构笔记
+
+如果环境允许：
+
+- [ ] 启动 TurtleBot3 或 Nav2 demo
+- [ ] 加载地图
+- [ ] 设置 initial pose
+- [ ] 设置 navigation goal
+- [ ] 观察 global path 和 local behavior
+
+如果环境暂时不允许：
+
+- [ ] 完成 Nav2 架构笔记
+- [ ] 整理常用 topic
+- [ ] 整理常用 launch
+- [ ] 整理常见问题
+
+验收：
+
+- [ ] 至少完成 demo 或一篇完整 Nav2 架构笔记
+
+### Day 7：Nav2 和机械臂项目对比
+
+- [ ] 写 Nav2 和 MoveIt2 对比表
+- [ ] 写移动机器人和机械臂控制对比
+- [ ] 写哪些知识可复用：TF、launch、参数、RViz2、action
+- [ ] 写哪些知识不同：底盘速度控制、地图、定位、costmap
+
+验收：
+
+- [ ] 能用 1 分钟解释为什么机械臂项目也值得了解 Nav2
 
 验收：
 
@@ -1222,6 +1609,107 @@ camera image
 - [ ] 能说明 YOLO 检测结果如何发布成 ROS2 topic
 - [ ] 能写出视觉到机械臂抓取的系统框图
 - [ ] 能判断哪些部分现在做，哪些部分以后再做
+
+### Day 1：复盘已有 YOLO 项目
+
+- [ ] 写清楚自己做过的 YOLO 项目输入是什么
+- [ ] 写清楚输出是什么：bbox、class、confidence
+- [ ] 写清楚训练、验证、推理流程
+- [ ] 整理模型文件、数据集、评价指标
+- [ ] 写“这个经验如何迁移到机器人”
+
+验收：
+
+- [ ] 能用 1 分钟讲清楚自己的 YOLO 项目
+- [ ] 能说明检测结果如何变成机器人可用的信息
+
+### Day 2：PyTorch 推理复习
+
+- [ ] 复习 tensor shape
+- [ ] 复习 `model.eval()`
+- [ ] 复习 `torch.no_grad()`
+- [ ] 复习 checkpoint 加载
+- [ ] 复习图像前处理：resize、normalize、to tensor
+- [ ] 复习后处理：NMS、阈值过滤
+
+验收：
+
+- [ ] 能写一个最小 PyTorch inference 脚本
+- [ ] 能解释训练模式和推理模式区别
+
+### Day 3：ROS2 Python 图像节点
+
+- [ ] 创建或设计 `robot_vision_learning`
+- [ ] 写 `image_subscriber.py`
+- [ ] 订阅 `sensor_msgs/msg/Image`
+- [ ] 使用 `cv_bridge` 转 OpenCV 图像
+- [ ] 打印图像尺寸
+- [ ] 可选：显示图像窗口
+
+验收：
+
+- [ ] 能订阅图像 topic
+- [ ] 能解释 ROS image message 和 OpenCV image 的区别
+
+### Day 4：YOLO ROS2 detection node 草稿
+
+- [ ] 设计 `yolo_ros2_node.py`
+- [ ] 订阅 image
+- [ ] 前处理图像
+- [ ] 调用 YOLO 模型推理
+- [ ] 后处理得到 bbox
+- [ ] 发布检测结果
+- [ ] 可选：发布带框图像
+
+输出 topic 设计：
+
+```text
+/detections
+/debug_image
+```
+
+验收：
+
+- [ ] 能画出 image -> detection 的节点图
+- [ ] 能说明检测结果应该用什么消息表达：自定义 msg、数组、vision_msgs
+
+### Day 5：视觉结果如何接机械臂
+
+- [ ] 理解 bbox 中心点只是图像坐标
+- [ ] 学习相机内参概念
+- [ ] 学习深度信息或单目估计的限制
+- [ ] 学习 camera frame 到 robot base 的 TF
+- [ ] 设计“检测目标 -> MoveIt2 抓取目标”的流程
+
+验收：
+
+- [ ] 能说明 2D bbox 不能直接等于机械臂抓取位姿
+- [ ] 能画出 camera -> base_link -> end_effector 的转换链路
+
+### Day 6：LibTorch 入门了解
+
+- [ ] 理解 PyTorch 和 LibTorch 的关系
+- [ ] 理解 TorchScript
+- [ ] 学习 `torch.jit.trace` 或 `torch.jit.script`
+- [ ] 了解 C++ 加载 `.pt` 模型的流程
+- [ ] 记录 LibTorch 部署难点：依赖、CMake、CUDA、版本匹配
+
+验收：
+
+- [ ] 能说清楚什么时候用 Python 推理，什么时候考虑 LibTorch
+- [ ] 不要求本周完整部署 LibTorch
+
+### Day 7：感知扩展复盘
+
+- [ ] 写 PyTorch / YOLO / LibTorch 对比表
+- [ ] 写 ROS2 视觉节点 topic 设计
+- [ ] 写机械臂视觉抓取扩展路线
+- [ ] 决定是否把视觉部分作为项目加分项，而不是主线
+
+验收：
+
+- [ ] 能把 YOLO 经验和 ROS2 机械臂项目连起来讲
+- [ ] 能明确当前阶段不被视觉部分拖慢主线
 
 ---
 
@@ -1284,11 +1772,116 @@ camera image
 
 本周任务：
 
-- [ ] 重构 `robot_control_cpp`，检查命名、const、传参
-- [ ] 把 `std::bind` 示例改写一个 lambda 版本
-- [ ] 为 `RobotState`、`SafetyLimiter`、`TrajectoryBuffer` 写更清楚的接口注释
-- [ ] 实现一个 A* 或 Dijkstra 小 demo
-- [ ] 整理 `C++ 面向对象复习` 与项目代码的对应关系
+### Day 1：项目代码风格体检
+
+- [ ] 检查类名是否统一
+- [ ] 检查函数名是否统一
+- [ ] 检查成员变量是否使用 `_` 后缀
+- [ ] 检查头文件 include guard 或 `#pragma once`
+- [ ] 检查 public / private 是否合理
+- [ ] 检查是否有过长函数
+- [ ] 列出需要重构的点
+
+验收：
+
+- [ ] 得到一份 C++ 风格问题清单
+- [ ] 能说出自己项目采用的命名规范
+
+### Day 2：const correctness 和参数传递
+
+- [ ] 检查查询函数是否加 `const`
+- [ ] 检查大对象参数是否用 `const T&`
+- [ ] 检查需要修改的参数是否用 `T&`
+- [ ] 检查返回值是否有悬空引用风险
+- [ ] 修改 `RobotState`、`SafetyLimiter`、`TrajectoryBuffer` 中不合理接口
+
+验收：
+
+- [ ] 能解释为什么 `positions() const` 很重要
+- [ ] 能解释 `const T&` 和 `T` 传参区别
+
+### Day 3：现代 C++ 回调写法
+
+- [ ] 复习 `std::bind`
+- [ ] 复习 lambda
+- [ ] 把一个 timer callback 改写成 lambda
+- [ ] 把一个 subscriber callback 改写成 lambda
+- [ ] 对比可读性
+- [ ] 记录 ROS2 中 `SharedPtr` 的常见写法
+
+验收：
+
+- [ ] 能写出 `std::bind(&Class::func, this, _1)`
+- [ ] 能写出等价 lambda
+- [ ] 能解释 lambda 捕获 `[this]`
+
+### Day 4：智能指针和 RAII
+
+- [ ] 复习 `unique_ptr`
+- [ ] 复习 `shared_ptr`
+- [ ] 复习 `weak_ptr`
+- [ ] 检查项目中是否有裸 `new/delete`
+- [ ] 用标准容器或智能指针替代不必要的手动内存管理
+- [ ] 记录 ROS2 为什么大量使用 `SharedPtr`
+
+验收：
+
+- [ ] 能解释所有权
+- [ ] 能解释 `unique_ptr` 和 `shared_ptr` 的区别
+- [ ] 能解释 RAII 为什么能减少资源泄漏
+
+### Day 5：数据结构和控制项目对应
+
+- [ ] 复习 `vector`
+- [ ] 复习 `deque`
+- [ ] 复习 `queue`
+- [ ] 复习 `map` / `unordered_map`
+- [ ] 复习 `priority_queue`
+- [ ] 写一张表：每种结构在机器人项目中适合放什么
+
+示例：
+
+| 数据结构 | 项目用途 |
+|---|---|
+| `vector` | 关节位置、速度、轨迹点数组 |
+| `deque` | 轨迹缓存 |
+| `queue` | 消息队列、任务队列 |
+| `unordered_map` | joint name 到 index 的映射 |
+| `priority_queue` | A* open set |
+
+验收：
+
+- [ ] 能解释为什么 `TrajectoryBuffer` 适合用 `deque`
+- [ ] 能解释 joint name 映射为什么适合用 map
+
+### Day 6：算法小 demo：A* 或 Dijkstra
+
+- [ ] 选择 A* 或 Dijkstra
+- [ ] 写一个 2D grid map
+- [ ] 设置起点、终点、障碍物
+- [ ] 输出路径
+- [ ] 使用 `priority_queue`
+- [ ] 记录算法复杂度和适用场景
+
+验收：
+
+- [ ] demo 能运行
+- [ ] 能解释 open set、closed set
+- [ ] 能说明 A* 和 Dijkstra 的区别
+- [ ] 能把它和 Nav2 global planner 联系起来
+
+### Day 7：C++ 工程复盘和重构提交
+
+- [ ] 整理本周 C++ 修改点
+- [ ] 更新 README 或代码注释
+- [ ] 整理 C++ 面试问题与项目对应表
+- [ ] 提交一次代码重构
+- [ ] 写“我的 C++ 编码规范”小节
+
+验收：
+
+- [ ] 项目代码比重构前更清楚
+- [ ] 能从项目里举例说明现代 C++ 用法
 
 验收：
 
