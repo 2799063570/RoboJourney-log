@@ -1003,13 +1003,22 @@ CMakeLists.txt 负责告诉编译器：我怎么使用这些依赖。
 #### 15. Day 4 需要额外理解的 ROS2 CMake 问题
 
 - [ ] `ament_cmake` 和普通 CMake 是什么关系
+	CMake 是基础构建工具，ament_cmake 是 ROS2 基于 CMake 做的扩展 ，colcon 是工作空间级别的构建工具
+	调用每个包的 CMake，CMake 中使用 ament_cmake 的 ROS2 扩展功能
 - [ ] 为什么 ROS2 包既有 `package.xml` 又有 `CMakeLists.txt`
+	package声明需要哪些包描述包的**元信息和依赖关系**，cmakelist描述这个包**具体怎么编译**
 - [ ] `find_package(rclcpp REQUIRED)` 做了什么
+	查找包的位置
 - [ ] `ament_target_dependencies` 和 `target_link_libraries` 有什么区别
+	链接自己写的 C++ library：target_link_libraries()  
+	链接 ROS2/ament 包依赖：ament_target_dependencies()
 - [ ] 为什么 ROS2 节点需要 `install(TARGETS ...)`
+		这表示把编译出来的可执行文件安装到
 - [ ] 为什么 launch/config 需要 `install(DIRECTORY ...)`
 - [ ] 为什么 `ros2 run` 找的是 install 目录里的 executable
+	因为 ROS2 使用的是 **安装后的包索引系统**，不是直接扫描源码目录或 build 目录
 - [ ] 为什么纯 C++ 控制库最好不要直接依赖 ROS2 API
+	第一，复用性变差；第二，测试变麻烦；第三，模块边界不清晰
 
 #### 16. 编译和运行流程
 
@@ -1086,6 +1095,7 @@ ros2 launch robot_control_ros2 vel_to_pos.launch.py
 - [ ] 能读懂一个最小 ROS2 `ament_cmake` 的 `CMakeLists.txt`
 - [ ] 能说明 `package.xml` 和 `CMakeLists.txt` 的对应关系
 - [ ] 能说明 ROS2 中为什么需要 `install(TARGETS ...)`
+	ROS2 运行时主要从 `install` 空间查找可执行文件和库，而不是直接从 `build` 目录或 `src` 目录查找
 
 #### 18. 今日必须理解的问题
 
@@ -1096,7 +1106,7 @@ ros2 launch robot_control_ros2 vel_to_pos.launch.py
 - [ ] `target_include_directories` 和 `include_directories` 的区别
 - [ ] `PUBLIC`、`PRIVATE`、`INTERFACE` 分别是什么意思
 - [ ] 为什么要打开 warning
-- [ ] 为什么浮点数不能直接用 `==` 比较
+- [ ] 为什么浮点数不能直接用 == 比较
 - [ ] `assert` 和 `std::cout` 分别适合做什么
 - [ ] `ament_package()` 为什么通常放在 ROS2 `CMakeLists.txt` 最后
 - [ ] `ament_target_dependencies` 解决了哪些 ROS2 依赖问题
@@ -1547,10 +1557,10 @@ ros2 pkg list | grep robot_control_ros2
 
 今天必须理解：
 
-- [ ] `src/` 下面放 ROS2 package
-- [ ] `colcon build` 是在工作区根目录运行
-- [ ] `install/setup.bash` 的作用是把新包加入当前终端环境
-- [ ] 每开一个新终端都要重新 source
+- [x] `src/` 下面放 ROS2 package
+- [x] `colcon build` 是在工作区根目录运行
+- [x] `install/setup.bash` 的作用是把新包加入当前终端环境
+- [x] 每开一个新终端都要重新 source
 
 验收：
 
@@ -1692,6 +1702,24 @@ ros2 topic hz /joint_position_cmd
 ### Day 5：参数和 YAML 配置
 
 目标：把硬编码的控制参数改成 ROS2 parameter。
+这里需要借助于参数服务器，需要注意的ROS2不同于ROS1，参数隶属于每个节点
+
+我们可以借助于参数输入
+launch 启动节点时读取 YAML 文件，把里面匹配当前节点名的参数作为初始覆盖值传给节点；节点内部通过 `declare_parameter()` 声明参数时，会优先使用这些 YAML 中的值。
+```python
+Node(
+    package="robot_control_ros2",
+    executable="vel_to_pos_node",
+    name="vel_to_pos_node",
+    parameters=[
+        config_dir,# 文件路径
+        {
+            "dt": 0.01,
+            "control_rate": 100.0
+        }# 参数字典
+    ]
+)
+```
 
 新增文件：
 
@@ -1710,11 +1738,13 @@ vel_to_pos_node:
     lower_limits: [-3.14, -1.57, -3.14, -3.14, -2.0, -6.28]
     upper_limits: [3.14, 1.57, 3.14, 3.14, 2.0, 6.28]
 ```
+这里需要注意的节点名称要对应
 
 今天任务：
 
-- [ ] 学会 `declare_parameter`
-- [ ] 学会 `get_parameter`
+- [x] 学会 `declare_parameter`
+- [x] 学会 `get_parameter`
+	对于参数服务器需要先声明后set get
 - [ ] 学会 `ros2 param list`
 - [ ] 学会 `ros2 param get`
 - [ ] 学会从 YAML 启动节点
@@ -2571,28 +2601,41 @@ RobotModel / SRDF
 
 今天先不要急着配置机械臂，先确认环境和概念。
 
-- [ ] 确认 ROS2 发行版和 MoveIt2 是否匹配
-- [ ] 安装或检查 `moveit`、`moveit_setup_assistant`
-- [ ] 跑一个官方 MoveIt2 demo 或 tutorial
-- [ ] 记录 `move_group`、RViz2 MotionPlanning、PlanningScene 的作用
-- [ ] 在笔记中画出 MoveIt2 核心链路
+- [x] 确认 ROS2 发行版和 MoveIt2 是否匹配
+	jazzy版本的ROS 
+	sudo apt install ros-jazzy-moveit安装对应的Moveit
+- [x] 安装或检查 `moveit`、`moveit_setup_assistant`
+	`QT_QPA_PLATFORM=xcb ros2 launch moveit_setup_assistant setup_assistant.launch.py`
+- [x] 跑一个官方 MoveIt2 demo 或 tutorial
+- [x] 记录 `move_group`、RViz2 MotionPlanning、PlanningScene 的作用
+	move_group 是 MoveIt2 的核心后端节点。它负责加载机器人模型、语义模型和规划配置，包括 URDF、SRDF、joint_limits、kinematics、OMPL 等参数。它内部集成了机器人状态监控、PlanningScene 管理、碰撞检测、路径规划、轨迹后处理和轨迹执行管理等功能。  
+	RViz2 MotionPlanning 是 MoveIt2 的图形交互插件。它本身不是规划器，也不直接完成碰撞检测和路径搜索。它主要作为前端界面，用来显示机器人模型、规划场景、起点状态、目标状态和规划轨迹。
+	PlanningScene 是 MoveIt2 中描述当前规划环境的核心数据结构。它包含机器人当前状态、机器人模型、关节限制、自碰撞信息、环境障碍物、附着物体、允许碰撞矩阵等信息。
+- [x] 在笔记中画出 MoveIt2 核心链路
 
 验收：
 
-- [ ] 能启动一个 MoveIt2 示例
+- [x] 能启动一个 MoveIt2 示例
 - [ ] 能说清楚 MoveIt2 主要负责规划，不直接等同于底层控制器
-- [ ] 能解释 URDF 和 SRDF 的区别
+	MoveIt2 主要负责运动规划和轨迹生成。它根据机器人模型、当前状态、目标状态和 PlanningScene 中的环境信息，计算一条满足关节限制和碰撞约束的轨迹。
+	MoveIt2 本身不是电机驱动器，也不是底层控制器。它不会直接控制电机电流、PWM、伺服周期或驱动器通信。MoveIt2 输出的是较高层的轨迹，例如一组带时间戳的关节位置、速度和加速度。
+- [x] 能解释 URDF 和 SRDF 的区别
+	URDF 描述机器人“物理模型”和“运动学结构”。
+	SRDF是路径规划相关的参数配置语义信息
 
 ### Day 2：检查 simple arm 模型是否适合 MoveIt2
 
 今天检查第 4 周做的机械臂模型。
 
-- [ ] 检查 `simple_2dof_arm.urdf.xacro`
-- [ ] 确认 joint 类型、axis、limit 是否完整
-- [ ] 确认 link / joint 名称清晰
-- [ ] 用 `xacro` 展开模型
-- [ ] 用 RViz2 显示模型
-- [ ] 记录哪些地方需要为了 MoveIt2 修改
+- [x] 检查 `simple_2dof_arm.urdf.xacro`
+	ros2 xacro xacro ....xacro
+- [x] 确认 joint 类型、axis、limit 是否完整
+	revolute；z轴；位置限位
+- [x] 确认 link / joint 名称清晰
+- [x] 用 `xacro` 展开模型
+- [x] 用 RViz2 显示模型
+- [x] 记录哪些地方需要为了 MoveIt2 修改
+	collision
 
 验收：
 
@@ -2604,31 +2647,32 @@ RobotModel / SRDF
 
 目标是生成或手写 MoveIt2 配置包。
 
-- [ ] 使用 MoveIt Setup Assistant 或手动创建 `simple_arm_moveit_config`
-- [ ] 配置 planning group：`arm`
-- [ ] 配置 planning joints：`joint1`、`joint2`
-- [ ] 生成或整理 SRDF
-- [ ] 生成 `joint_limits.yaml`
-- [ ] 生成 `kinematics.yaml`
-- [ ] 生成 `ompl_planning.yaml`
+- [x] 使用 MoveIt Setup Assistant 或手动创建 `simple_arm_moveit_config`
+- [x] 配置 planning group：`arm`
+- [x] 配置 planning joints：`joint1`、`joint2`
+- [x] 生成或整理 SRDF
+- [x] 生成 `joint_limits.yaml`
+	需要注意是小数
+- [x] 生成 `kinematics.yaml`
+- [x] 生成 `ompl_planning.yaml`
 
 验收：
 
-- [ ] 配置包能被 colcon 编译
-- [ ] 能解释 planning group 是什么
-- [ ] 能在文件里找到 `arm` 对应哪些 joints
+- [x] 配置包能被 colcon 编译
+- [x] 能解释 planning group 是什么
+- [x] 能在文件里找到 `arm` 对应哪些 joints
 
 ### Day 4：启动 MoveIt2 RViz demo
 
 今天目标是看到 MotionPlanning 面板并能规划。
 
-- [ ] 启动 `demo.launch.py`
-- [ ] RViz2 Fixed Frame 设置正确
-- [ ] MotionPlanning 面板加载成功
-- [ ] 选择 planning group
-- [ ] 设置一个关节目标
-- [ ] 点击 Plan
-- [ ] 观察规划轨迹
+- [x] 启动 `demo.launch.py`
+- [x] RViz2 Fixed Frame 设置正确
+- [x] MotionPlanning 面板加载成功
+- [x] 选择 planning group
+- [x] 设置一个关节目标
+- [x] 点击 Plan
+- [x] 观察规划轨迹
 
 验收：
 
@@ -2900,6 +2944,8 @@ RobotModel / SRDF
 ### Day 1：理解 ros2_control 架构
 
 - [ ] 学习 `ros2_control` 总体结构
+	`ros2_control` 是 ROS2 中连接“上层规划/控制命令”和“底层真实硬件或仿真硬件”的标准控制框架。
+	它不是单纯的一个节点，也不是单纯的一个控制器，而是一整套结构：**URDF 描述硬件接口 → controller_manager 管理控制器 → controller 产生控制指令 → hardware_interface 读写真实硬件或仿真硬件**。
 - [ ] 区分 hardware、controller、controller_manager
 - [ ] 理解 command interface 和 state interface
 - [ ] 整理 `position`、`velocity`、`effort` 三类接口
@@ -3526,6 +3572,8 @@ map
 ### Day 1：Nav2 总体架构
 
 - [ ] 阅读 Nav2 概览
+- 给机器人一个目标点，它根据地图、传感器、定位和规划算法，自动完成“定位 → 全局规划 → 局部避障控制 → 异常恢复 → 到达目标”的流程。
+- 
 - [ ] 画出 `map -> odom -> base_link` TF 树
 - [ ] 理解 `cmd_vel` 的作用
 - [ ] 理解 navigation goal 的输入
@@ -4455,6 +4503,434 @@ camera image
 
 ---
 
+## 第 11 周：嵌入式 Linux / STM32 / micro-ROS 求职加分扩展
+
+### 本周定位
+
+这一周不是把方向改成纯嵌入式，而是给机器人项目补上“上位机 ROS2 + 下位机控制器”的系统理解。
+
+主线仍然是：
+
+```text
+C++ + ROS2 + 机械臂控制 + MoveIt2 + ros2_control
+```
+
+嵌入式扩展的定位是：
+
+```text
+求职加分项：
+理解 Linux 应用开发、串口/CAN 通信、STM32 下位机、实时控制任务，以及它们如何接入 ROS2 系统。
+```
+
+不要一开始就钻太深：
+
+- 不急着学 Linux 内核驱动
+- 不急着学 Yocto 深度裁剪
+- 不急着写复杂 bootloader
+- 不急着啃 FreeRTOS 内核源码
+- 不急着把 STM32 所有外设都学一遍
+
+本周目标是形成一条能讲清楚、能做 demo、能写进简历的链路：
+
+```text
+ROS2 上位机
+  -> 串口 / CAN / UDP
+  -> STM32 或模拟下位机
+  -> 电机命令 / 编码器状态
+  -> 回传 joint state
+  -> ROS2 可视化或控制闭环
+```
+
+### 树莓派 4B 在本项目中的角色
+
+手里有树莓派 4B 时，最推荐把它当成机器人上位机或边缘计算机，而不是当成 STM32 那种硬实时下位机。
+
+推荐分工：
+
+```text
+电脑 / 笔记本
+  -> 代码开发
+  -> SSH 远程登录树莓派
+  -> RViz2 可视化
+  -> MoveIt2 调试
+
+Raspberry Pi 4B
+  -> 运行 ROS2 控制节点
+  -> 连接 USB 摄像头 / CSI 摄像头
+  -> 通过 UART / CAN / UDP 连接 STM32 或模拟下位机
+  -> 发布 /joint_states、/tf、/image_raw
+  -> 记录 rosbag2 和运行日志
+
+STM32 / 电机控制板
+  -> 读取编码器
+  -> 输出 PWM / CAN 电机命令
+  -> 执行实时控制任务
+  -> 回传关节状态
+```
+
+最适合用树莓派 4B 做的项目：
+
+- [ ] 作为 ROS2 实机部署平台，运行 `vel_to_pos_node`、`joint_state_bridge`、`robot_state_publisher`
+- [ ] 作为 ROS2 与 STM32 的通信桥，完成命令下发和状态回传
+- [ ] 接 USB/CSI 相机，发布 `/image_raw`
+- [ ] 做 OpenCV、AprilTag、ArUco 或轻量视觉检测
+- [ ] 做小车 / Nav2 上位机，为后续移动机器人扩展做准备
+- [ ] 练习 SSH、systemd、rosbag2、固定 IP、launch 一键启动等工程能力
+
+不建议一开始做的事：
+
+- [ ] 不要让树莓派直接承担高频硬实时电机闭环
+- [ ] 不要一开始就在树莓派上跑完整桌面 + RViz2 + 大型 MoveIt2 项目
+- [ ] 不要在树莓派 4B 上强行跑大型 YOLO 实时检测
+- [ ] 不要一开始研究 Linux 内核驱动或 Yocto
+
+推荐系统选择：
+
+```text
+如果重点是 ROS2：
+Ubuntu Server 24.04 ARM64 + ROS2 Jazzy
+或 Ubuntu Server 22.04 ARM64 + ROS2 Humble
+
+如果重点是 GPIO / 相机 / Linux 基础：
+Raspberry Pi OS 64-bit
+```
+
+本项目更推荐优先使用 Ubuntu Server + ROS2，因为后续和 ROS2 机械臂、MoveIt2、ros2_control 的环境更一致。
+
+### 本周核心目标
+
+- [ ] 理解机器人系统中的上位机 / 下位机分工
+- [ ] 学会 Linux 下串口或 Socket 基础通信
+- [ ] 了解 STM32 常用外设：GPIO、Timer、PWM、Encoder、UART、CAN
+- [ ] 理解 FreeRTOS 中 task、queue、semaphore、控制周期
+- [ ] 设计 ROS2 与 STM32 的通信协议
+- [ ] 完成一个“ROS2 节点 + 模拟下位机”的通信 demo
+- [ ] 如果有 STM32 板子，再迁移到真实硬件
+- [ ] 了解 micro-ROS 的作用和适用边界
+- [ ] 把树莓派 4B 配置成 ROS2 实机部署平台
+- [ ] 在树莓派上运行至少一个 ROS2 控制或通信节点
+
+### 求职定位
+
+这部分适合支撑这些岗位关键词：
+
+```text
+机器人软件工程师
+ROS2 开发工程师
+机器人控制工程师
+嵌入式机器人开发
+运动控制工程师
+AGV / AMR / 机械臂系统开发
+```
+
+简历表达方向：
+
+```text
+了解机器人上位机与下位机控制架构，使用 ROS2 完成控制命令下发和关节状态回传，
+设计串口/CAN 通信协议，模拟 STM32 下位机完成电机命令解析、状态反馈和基础闭环控制。
+```
+
+### Day 1：机器人中的上位机 / 下位机架构
+
+目标：先建立系统分层认知，不急着写代码。
+
+任务：
+
+- [ ] 画出上位机 / 下位机 / 电机驱动 / 传感器之间的关系
+- [ ] 区分 ROS2 节点、控制器、驱动器、MCU 的职责
+- [ ] 整理机械臂项目中哪些逻辑适合放 ROS2，哪些适合放 STM32
+- [ ] 对比 `ros2_control` 和真实硬件下位机的关系
+- [ ] 把树莓派 4B 放进系统架构图，明确它作为 ROS2 上位机的位置
+- [ ] 写一段“为什么机器人项目需要嵌入式知识”的说明
+
+推荐架构图：
+
+```text
+Laptop / Desktop
+  -> RViz2 / MoveIt2 / SSH / 开发调试
+  -> Wi-Fi / Ethernet
+  -> Raspberry Pi 4B
+  -> ROS2 控制节点 / serial_bridge_node / camera_node
+  -> joint trajectory / joint command
+  -> ROS2 hardware interface 或通信节点
+  -> 串口 / CAN / EtherCAT / UDP
+  -> STM32 / 电机控制板
+  -> 电机驱动器
+  -> 编码器 / 电流 / IMU
+  -> 状态回传
+  -> /joint_states
+```
+
+知识点：
+
+- 上位机通常负责规划、任务逻辑、可视化、参数管理
+- 下位机通常负责实时控制、采样、电机驱动、保护逻辑
+- ROS2 不适合直接做所有硬实时控制
+- STM32 适合处理周期稳定、靠近硬件的任务
+- `ros2_control` 可以把上层轨迹和底层硬件接口标准化
+
+验收：
+
+- [ ] 能解释“上位机”和“下位机”的区别
+- [ ] 能画出 ROS2 到 STM32 的控制链路
+- [ ] 能说明哪些部分应该放在 ROS2，哪些部分应该放在 MCU
+- [ ] 能说明树莓派和笔记本、STM32 分别负责什么
+
+### Day 2：Linux 应用开发基础和串口通信
+
+目标：先在 Linux 用户态理解“上位机如何和设备通信”。
+
+任务：
+
+- [ ] 复习 Linux 文件设备概念
+- [ ] 理解 `/dev/ttyUSB0`、`/dev/ttyACM0`
+- [ ] 学习串口参数：baudrate、data bits、stop bits、parity
+- [ ] 写一个 C++ 串口发送程序
+- [ ] 写一个 C++ 串口接收程序
+- [ ] 如果没有真实串口，用伪终端或 Python 脚本模拟
+- [ ] 在树莓派 4B 上确认串口设备或 USB 串口设备名称
+- [ ] 用 SSH 登录树莓派，完成一次远程编译和运行
+
+最小通信协议示例：
+
+```text
+上位机发送：
+CMD q1 q2 q3 q4 q5 q6
+
+下位机回传：
+STATE q1 q2 q3 q4 q5 q6 dq1 dq2 dq3 dq4 dq5 dq6
+```
+
+知识点：
+
+- Linux 中很多硬件设备以文件形式暴露
+- 串口通信本质是字节流，不天然知道一条消息在哪里结束
+- 通信协议要设计帧头、字段、分隔符或校验
+- 串口调试要关注权限、波特率、换行符和阻塞读取
+
+验收：
+
+- [ ] 能解释 `/dev/ttyUSB0` 是什么
+- [ ] 能写出最小串口读写流程
+- [ ] 能说明为什么通信协议需要消息边界
+- [ ] 能通过 SSH 在树莓派上运行一个最小通信程序
+
+### Day 3：ROS2 通信桥节点设计
+
+目标：把 Linux 通信程序升级成 ROS2 节点。
+
+任务：
+
+- [ ] 创建 `embedded_bridge_node.cpp`
+- [ ] 订阅 `/joint_position_cmd`
+- [ ] 将 ROS2 消息编码成串口协议
+- [ ] 从串口读取下位机状态
+- [ ] 解析状态并发布 `/joint_states`
+- [ ] 如果暂时没有硬件，写一个 `fake_mcu.py` 或 `fake_mcu.cpp`
+- [ ] 将 `embedded_bridge_node` 部署到树莓派 4B 上运行
+- [ ] 电脑端运行 RViz2，树莓派端发布 `/joint_states`
+
+节点结构：
+
+```text
+Laptop / Desktop
+  -> RViz2
+  -> ros2 topic pub /joint_position_cmd
+
+Raspberry Pi 4B
+  -> embedded_bridge_node
+  -> serial write: CMD ...
+
+/joint_position_cmd
+  -> embedded_bridge_node
+  -> serial write: CMD ...
+
+serial read: STATE ...
+  -> embedded_bridge_node
+  -> /joint_states
+```
+
+知识点：
+
+- ROS2 节点可以作为上位机通信桥
+- 上层控制逻辑不应该直接关心串口细节
+- 通信桥节点负责协议编码、解码、异常处理
+- `/joint_states` 是标准状态接口，适合连接 RViz2 和 MoveIt2
+
+验收：
+
+- [ ] 能用 ROS2 topic 触发一条下发命令
+- [ ] 能从模拟下位机收到状态
+- [ ] 能把状态发布成 `/joint_states`
+- [ ] 能解释 bridge node 的职责
+- [ ] 能说明为什么 RViz2 可以放在电脑上，而控制节点可以放在树莓派上
+
+### Day 4：STM32 基础外设学习路线
+
+目标：明确 STM32 要学哪些，不陷入“所有外设都学”的坑。
+
+任务：
+
+- [ ] 安装或了解 STM32CubeIDE / STM32CubeMX
+- [ ] 了解 STM32 工程结构：startup、HAL、main、interrupt
+- [ ] 学习 GPIO 输出和输入
+- [ ] 学习 Timer 基础
+- [ ] 学习 PWM 输出
+- [ ] 学习 UART 收发
+- [ ] 学习 Encoder mode 或编码器读取思路
+- [ ] 了解 CAN 的作用和基本报文结构
+
+优先级：
+
+| 外设 | 机器人项目用途 | 优先级 |
+|---|---|---|
+| GPIO | 使能、方向、限位开关 | 高 |
+| Timer | 控制周期、PWM 基础 | 高 |
+| PWM | 电机驱动命令 | 高 |
+| Encoder | 关节位置 / 速度反馈 | 高 |
+| UART | 上位机通信、调试 | 高 |
+| CAN | 电机驱动器通信 | 中高 |
+| ADC | 电流、电压、传感器采样 | 中 |
+| I2C / SPI | IMU、磁编码器、外设芯片 | 中 |
+| DMA | 高效通信和采样 | 后续 |
+
+知识点：
+
+- STM32 是下位机控制器，不是 ROS2 的替代品
+- HAL 可以帮助快速上手，但要理解外设背后的基本机制
+- Timer 是嵌入式控制周期的核心
+- PWM 和编码器是电机控制最常见输入输出
+- CAN 在机器人电机驱动器中很常见
+
+验收：
+
+- [ ] 能说出 STM32 最该优先学哪些外设
+- [ ] 能解释 PWM 和 Encoder 在电机控制中的作用
+- [ ] 能说明 UART 和 CAN 分别适合什么通信场景
+
+### Day 5：FreeRTOS 和实时控制任务
+
+目标：理解“为什么下位机控制要关心实时性”。
+
+任务：
+
+- [ ] 了解裸机循环和 RTOS 任务的区别
+- [ ] 学习 FreeRTOS task
+- [ ] 学习 queue
+- [ ] 学习 semaphore / mutex 的基本用途
+- [ ] 设计一个 100 Hz 控制任务
+- [ ] 设计一个通信接收任务
+- [ ] 设计一个状态发送任务
+
+推荐任务划分：
+
+```text
+control_task      100 Hz  读取目标，计算输出，更新电机命令
+comm_rx_task       50 Hz  接收上位机命令
+comm_tx_task       50 Hz  回传关节状态
+safety_task       100 Hz  检查限位、急停、超速
+```
+
+知识点：
+
+- 实时性不是“速度快”，而是“周期稳定、响应可预期”
+- 控制任务应该有固定周期
+- 通信任务和控制任务应该解耦
+- queue 适合任务之间传递数据
+- mutex 用于保护共享资源，但控制任务中要谨慎使用阻塞
+
+验收：
+
+- [ ] 能解释 task、queue、semaphore 的作用
+- [ ] 能设计一个简单机器人下位机任务结构
+- [ ] 能说明为什么通信和控制最好不要写在一个大 while 里
+
+### Day 6：micro-ROS 认知和适用边界
+
+目标：知道 micro-ROS 是什么，以及什么时候该用、什么时候不该用。
+
+任务：
+
+- [ ] 阅读 micro-ROS 基本介绍
+- [ ] 理解 micro-ROS agent 和 client 的关系
+- [ ] 理解 MCU 上发布 / 订阅 ROS2 消息的基本思路
+- [ ] 对比“自定义串口协议”和“micro-ROS”
+- [ ] 判断当前机械臂项目是否需要 micro-ROS
+
+对比：
+
+| 方案 | 优点 | 缺点 | 适用场景 |
+|---|---|---|---|
+| 自定义串口 / CAN 协议 | 简单、可控、资源占用小 | 需要自己设计协议和解析 | 简单电机控制、状态回传 |
+| micro-ROS | 和 ROS2 概念一致，支持 pub/sub | 移植和资源要求更高 | MCU 需要深度接入 ROS2 生态 |
+| ros2_control hardware interface | 上层标准化好 | 需要写硬件接口 | 机械臂控制器接入 MoveIt2 |
+
+知识点：
+
+- micro-ROS 是把 ROS2 能力扩展到微控制器的一种方案
+- micro-ROS 不等于所有项目都必须使用
+- 简单下位机控制常常自定义协议更直接
+- 如果 MCU 需要直接成为 ROS2 图中的节点，可以考虑 micro-ROS
+
+验收：
+
+- [ ] 能解释 micro-ROS 是什么
+- [ ] 能说明 micro-ROS 和普通串口协议的区别
+- [ ] 能判断当前项目先用哪种方案更合适
+
+### Day 7：嵌入式扩展复盘和简历表达
+
+目标：把嵌入式学习收束成求职可讲的项目能力。
+
+任务：
+
+- [ ] 整理 ROS2 上位机和 STM32 下位机架构图
+- [ ] 整理通信协议设计
+- [ ] 整理 fake MCU demo 或真实 STM32 demo 的运行步骤
+- [ ] 整理 Raspberry Pi 4B 部署步骤：系统、SSH、ROS2、节点运行、日志查看
+- [ ] 写 README 中的“嵌入式扩展”章节
+- [ ] 写简历 bullet
+- [ ] 准备面试讲解稿
+
+README 建议结构：
+
+```text
+Embedded Extension
+├── System Architecture
+├── Raspberry Pi 4B Deployment
+├── Communication Protocol
+├── ROS2 Bridge Node
+├── Fake MCU Demo
+├── STM32 Migration Plan
+└── Known Limitations
+```
+
+简历 bullet 示例：
+
+```text
+基于 Raspberry Pi 4B 搭建 ROS2 机器人上位机，设计 ROS2 与 STM32 下位机的通信链路，
+使用自定义串口/CAN 协议完成关节命令下发、编码器状态回传和 /joint_states 发布，
+形成从运动规划到下位机控制的机器人系统闭环。
+```
+
+面试讲解主线：
+
+1. 上层 MoveIt2 或控制节点生成关节目标
+2. 树莓派 4B 上的 ROS2 bridge node 将目标编码成通信协议
+3. 下位机解析命令并执行周期控制
+4. 下位机读取编码器并回传状态
+5. ROS2 发布 `/joint_states`，供 RViz2、MoveIt2 和监控节点使用
+
+验收：
+
+- [ ] 能用 1 分钟讲清楚为什么补嵌入式
+- [ ] 能用 1 分钟讲清楚树莓派 4B 在项目中的作用
+- [ ] 能画出 ROS2 到 STM32 的控制链路
+- [ ] 能说明当前实现、后续可扩展点和不足
+- [ ] 有一段可以写进简历的嵌入式扩展描述
+
+---
+
 
 ## 进阶内容优先级
 
@@ -4465,14 +4941,16 @@ camera image
 3. 现代 C++ 和项目重构
 4. Nav2 架构理解
 5. PyTorch / YOLO ROS2 感知链路
-6. LibTorch C++ 推理
-7. 更深入的数据结构算法
+6. 嵌入式 Linux / STM32 / micro-ROS 扩展
+7. LibTorch C++ 推理
+8. 更深入的数据结构算法
 
 原因：
 
 - MoveIt2 和 ros2_control 最贴近机械臂控制项目。
 - 现代 C++ 会直接提升代码质量。
 - Nav2 和视觉是横向扩展，适合做机器人系统认知。
+- 嵌入式扩展能补上机器人上位机 / 下位机闭环，对求职有加分价值。
 - LibTorch 价值高，但部署成本也高，不应压过主线。
 
 ---
@@ -4488,6 +4966,9 @@ camera image
 | ros2_control | 官方 demos + 自己的 joint trajectory controller |
 | Nav2 | Nav2 getting started + 架构笔记 |
 | PyTorch / YOLO | 复用已有 YOLO 经验，补 ROS2 图像节点 |
+| Raspberry Pi 4B | Ubuntu Server + ROS2 实机部署 + SSH/systemd/rosbag2 工程实践 |
+| 嵌入式 Linux / STM32 | 树莓派串口/CAN 通信 + STM32 外设基础 + ROS2 bridge demo |
+| micro-ROS | 先理解概念和适用边界，不急着替代自定义通信协议 |
 | LibTorch | 先了解 TorchScript C++ 推理，不急着完整部署 |
 | 现代 C++ | Effective C++ / 侯捷课程 + 项目重构 |
 | 数据结构算法 | 机器人常用算法优先：A*、Dijkstra、RRT、队列、图 |
@@ -4498,6 +4979,8 @@ camera image
 - [ ] 不要一开始就啃完整 MoveIt2 源码
 - [ ] 不要把 Nav2 做成第二个主线
 - [ ] 不要为了学 LibTorch 牺牲 MoveIt2 和 ros2_control
+- [ ] 不要一开始就深挖 Linux 内核、Yocto 或复杂 bootloader
+- [ ] 不要把 STM32 所有外设都学一遍，要围绕电机控制和通信
 - [ ] 不要随机刷 C++ 面试题，要和项目代码绑定
 
 ---
@@ -4511,7 +4994,7 @@ camera image
 简历描述方向：
 
 ```text
-实现了一个基于 ROS2 的机械臂控制与规划项目，包含纯 C++ 控制库、ROS2 控制节点、URDF/RViz2 可视化、MoveIt2 运动规划和 ros2_control 控制器接口。项目中完成了速度到位置的控制闭环、关节状态发布、TF 可视化、OMPL 规划配置以及 FollowJointTrajectory 控制链路，并进一步调研 Nav2 移动机器人导航和 YOLO 视觉感知接入 ROS2 的扩展方案。
+实现了一个基于 ROS2 的机械臂控制与规划项目，包含纯 C++ 控制库、ROS2 控制节点、URDF/RViz2 可视化、MoveIt2 运动规划和 ros2_control 控制器接口。项目中完成了速度到位置的控制闭环、关节状态发布、TF 可视化、OMPL 规划配置以及 FollowJointTrajectory 控制链路，并进一步扩展 Nav2 移动机器人导航、YOLO 视觉感知接入 ROS2，以及基于 Raspberry Pi 4B 的 ROS2 上位机与 STM32 下位机通信链路设计。
 ```
 
 面试讲解升级版：
@@ -4521,7 +5004,7 @@ camera image
 3. 再用 URDF、JointState、robot_state_publisher 和 RViz2 做可视化闭环。
 4. 接着加入 MoveIt2，让系统具备规划能力。
 5. 再接 ros2_control，让规划轨迹能进入标准控制器接口。
-6. 最后扩展学习 Nav2 和 YOLO 感知链路，形成对机器人系统的整体认识。
+6. 最后扩展学习 Nav2、YOLO 感知链路，以及 Raspberry Pi 4B + STM32 的上位机 / 下位机通信，形成对机器人系统的整体认识。
 
 ---
 
