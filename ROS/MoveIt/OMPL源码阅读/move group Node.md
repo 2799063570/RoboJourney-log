@@ -13,7 +13,7 @@
     → Planning Pipeline（请求适配器 + 规划器插件）
     → 时间参数化 / 轨迹校验
     → Trajectory Execution Manager
-    → ros2_control 或机器人控制器
+    → ros_control 或机器人控制器
 ```
 
 1. 客户端通过 `MoveGroupInterface`、动作或服务提交目标位姿、关节目标和约束。
@@ -26,12 +26,12 @@
 
 | 组件 | 职责 | 关联笔记 |
 | --- | --- | --- |
-| Planning Scene | 保存机器人模型、当前状态、碰撞环境与约束 | [[planning context]] |
+| Planning Scene | 保存机器人模型、当前状态、碰撞环境与约束 | [[Move group|move_group 架构]] |
 | Planning Pipeline | 串联适配器与规划器插件 | [[Planning Pipeline]] |
 | PlannerManager | 读取配置并创建具体规划上下文 | [[PlannerManager]] |
 | PlanningContext | 针对一次请求执行求解 | [[PlanningContext]] |
 | Trajectory Execution | 向控制器发送轨迹、监视执行 | [[ROS/MoveIt/Trajectory Execution]] |
-| Sensor Manager | 将传感器数据更新为碰撞环境 | 待补充：传感器与 OctoMap |
+| Sensor Manager | 将传感器数据更新为碰撞环境 | [[../传感器功能与OctoMap|传感器与 OctoMap]] |
 
 ## 配置时优先检查
 
@@ -53,7 +53,7 @@
 
 ## 与 ROS2 的区别
 
-本页描述的是通用架构。实际 ROS2 项目应使用 MoveIt 2 的 launch、参数与 `rclcpp` 接口；不要直接照搬 ROS1 的 `roslaunch`、`NodeHandle` 或参数服务器写法。
+本页的源码和配置语境是 ROS1 MoveIt。实际 ROS2 项目应使用 MoveIt 2 的 launch、参数与 `rclcpp` 接口，通常配合 `ros2_control`；不要直接照搬 ROS1 的 `roslaunch`、`NodeHandle`、`ros_control` 或参数服务器写法。
 
 ## 关联笔记
 
@@ -61,4 +61,4 @@
 - [[Planning Pipeline]]
 - [[PlannerManager]]
 - [[PlanningContext]]
-- [[ROS/pluginlib插件机制]]
+- [[ROS/ROS1/pluginlib插件机制]]

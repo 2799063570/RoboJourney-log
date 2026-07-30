@@ -1,3 +1,9 @@
+# PlannerConfiguration：规划器参数模型
+
+## 结论
+
+MoveIt 将规划组、配置名称和键值参数组织为 `PlannerConfigurationSettings`，再由 `PlannerConfigurationMap` 按名称查找。YAML 中的参数最终需要与规划器插件读取的 key 一致；配置存在不等于该规划器一定可被加载。
+
 ## 算法参数的存储类型
 
 ```cpp

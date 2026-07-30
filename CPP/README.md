@@ -18,9 +18,9 @@
 1. [[C++生存指南]]
 2. [[程序开发知识]]
 3. [[C++面向对象]]
-4. [[CPP-learning/STL/STL总结]]
-5. [[CPP-learning/data_struct/data_struct]]
-6. [[ROS/机械臂控制项目体检与完善清单|机械臂控制项目体检与完善清单]]
+4. [[C++现代用法]]
+5. [[CPP-learning/STL/STL总结]]
+6. [[CPP-learning/data_struct/data_struct]]
 
 ## 机械臂项目所需模块
 

@@ -1,65 +1,24 @@
 # ROS 入口
 
-这里存放 ROS1、ROS2、MoveIt、机械臂控制项目相关笔记。学习目标是把 ROS2 控制链路跑通，并能够解释每一层的职责。
+本目录以 ROS1 与 MoveIt 学习资料为主，ROS2 内容用于记录通信机制与机械臂控制项目扩展。
 
-## 当前主线
+## 推荐阅读路径
 
-- [[机械臂ROS2控制项目计划]]
-- [[机械臂控制项目体检与完善清单]]
+1. [[ROS1/README|ROS1 基础]]：理解节点、话题、常用命令、TF 与机器人驱动。
+2. [[MoveIt/README|MoveIt]]：从概念和教程进入轨迹执行、控制器与 OMPL 源码阅读。
+3. [[../motion_planning/README|运动规划]]：单独理解 RRT、OMPL 接口与自定义规划器。
+4. [[ROS2/README|ROS2]]：需要迁移或继续机械臂控制项目时再进入。
 
-> 注意：上述两篇项目文档保留了历史计划和勾选项；继续前请先验证代码、环境和演示是否可运行。
+## 目录说明
 
-## 阶段一：ROS2 最小闭环
-
-先完成以下闭环，再追求复杂功能：
-
-1. 创建 ROS2 C++ 功能包
-2. 写 publisher / subscriber
-3. 写 timer 控制节点
-4. 使用 parameter 控制关节速度、时间步长、限幅
-5. 写 launch 文件启动节点
-6. 让 `vel_to_pos_node` 完成速度到位置的积分
-7. 用命令行检查 topic、node、param、日志输出
-
-验收标准：
-
-- 能解释 ROS2 package、node、topic、message、parameter、launch 的关系。
-- 能独立创建一个 `ament_cmake` C++ 包。
-- 能写出一个最小 publisher/subscriber。
-- 能用参数改变节点行为，而不是改代码重编译。
-
-## 阶段二：机械臂可视化闭环
-
-把 ROS2 控制结果变成“看得见”的机械臂演示：
-
-1. 写一个简单 2 自由度机械臂 URDF/Xacro
-2. 发布 `joint_states`
-3. 配置 `robot_state_publisher`
-4. 在 RViz2 中显示机械臂
-5. 加入 TF2 坐标关系
-6. 将控制节点接到关节状态显示上
-7. 整理项目 README 和演示脚本
-
-验收标准：
-
-- RViz2 能显示机械臂。
-- 改变关节位置时，机械臂能动。
-- 能解释 `joint_states`、URDF、TF2、RViz2 之间的关系。
-
-## 知识地图
-
-| 主题 | 笔记 |
+| 目录 | 内容 |
 |---|---|
-| ROS2 通信 | [[ROS2/通信协议-DDS-TCP-UDP]] |
-| TF 坐标 | [[基础概念/tf坐标变换]] |
-| MoveIt 轨迹执行 | [[MoveIt/Trajectory Execution]] |
-| pluginlib | [[pluginlib插件机制]] |
-| MoveIt-OMPL 源码阅读 | [[moveit-ompl/Move group]], [[moveit-ompl/Planning Pipeline]], [[moveit-ompl/PlannerManager]] |
-| ROS 学习旧资料 | [[ros_learning/ROS Learning]], [[ros_learning/ROS常用指令]] |
+| [[ROS1/README|ROS1]] | ROS 概览、常用指令、TF、AUBO 源码阅读与 pluginlib |
+| [[MoveIt/README|MoveIt]] | MoveIt 教程、轨迹执行、控制器和 MoveIt-OMPL 源码阅读 |
+| [[ROS2/README|ROS2]] | DDS 通信笔记与 ROS2 机械臂项目资料 |
 
-## 学习建议
+## 整理原则
 
-- ROS1 经验可以迁移概念，但不要照搬写法。
-- ROS2 先抓住 `ament_cmake`、`rclcpp`、参数、launch、QoS。
-- 每天至少留下一个可运行命令和一个现象截图/记录。
-- 所有项目笔记都要能回答三个问题：做了什么、怎么运行、为什么这样设计。
+- ROS1 与 ROS2 笔记按实际 API 和运行环境分类，不因主题相似而混放。
+- MoveIt 的应用笔记放在 `MoveIt/`；纯算法和自定义规划实验放在 `motion_planning/`。
+- 继续项目时以代码、构建日志和演示结果确认实际进度，不把历史计划当成完成记录。

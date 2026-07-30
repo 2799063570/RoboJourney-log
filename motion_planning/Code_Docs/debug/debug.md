@@ -1,4 +1,4 @@
-[[check_paths.py.md]]
-[[debug_collision.py.md]]
-[[fk.py.md]]
-[[visual_collision_check.py.md]]
+[[check_paths.py]]
+[[debug_collision.py]]
+[[fk.py]]
+[[visual_collision_check.py]]

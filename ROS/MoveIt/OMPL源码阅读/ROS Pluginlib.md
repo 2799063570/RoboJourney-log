@@ -1,3 +1,10 @@
+# MoveIt 中的 pluginlib 与规划器扩展
+
+## 结论
+
+自定义规划器要以 `planning_interface::PlannerManager` 的实现形式导出，而不是只实现一个 RRT 类。MoveIt 先加载 Manager，再由 Manager 为每个请求创建 `PlanningContext`；因此插件注册、XML 描述和配置名称是连接算法与 MoveIt 的必要环节。
+
+## 机制概览
 
 💡是什么？
 	它就像 **“USB 接口”** 或者 **“手机 App”**

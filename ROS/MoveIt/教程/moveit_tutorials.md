@@ -1,10 +1,19 @@
-记录按照moveit noetic教程学习的过程
-同时呢，按照个人理解，将Moveit整理为[[Move group]]
+# MoveIt Noetic 教程与实验记录
+
+> 适用范围：ROS1 Noetic / MoveIt1。本文保留按教程操作时的截图和实验记录；正式接入机器人时，应以机器人自身的 URDF、SRDF、控制器配置和安全要求为准。
+
+## 使用方式
+
+按“模型与当前状态 → RViz 交互 → 规划场景 → 运动学 → 规划与执行”的顺序阅读。架构概览见 [[../OMPL源码阅读/Move group|move_group 架构]]，执行失败的排查见 [[../Trajectory Execution|轨迹执行]]。
+
+## 教程记录
+
+记录按照 MoveIt Noetic 教程学习的过程。
 
 ## rviz过程
 
 通过rviz的插件引入**MotionPlanning**插件。
-![alt text](ROS/moveit_tutorials/image.png#img-center)
+![alt text](image.png#img-center)
 可以发现有图中的很多的设置对象。对图中的设置解释一下：
 
 1. 设置坐标系 Global Options中设置fixed_frame为我们机器人的基坐标系。
@@ -15,7 +24,7 @@
 
 ### 对机器人的可视化演示
 
-![alt text](ROS/moveit_tutorials/image-1.png#img_center)
+![alt text](image-1.png#img_center)
 
 1. 在scense robot中选择是否展示机器人的场景状态 show robot visual
 2. 在planned path中选择是否展示机器人show robot visual（白色实体机器人）
@@ -24,7 +33,7 @@
 在joints部分可以保持末端不变而改变关节空间参数，实现零空间探索。那么什么时零空间探索呢，“Null Space Exploration”（零空间探索）是机器人运动规划和控制中一个非常核心且高级的概念，主要用于冗余机器人。在保持机器人末端执行器（手/夹爪）位置和姿态完全不变的情况下，调整机器人内部关节的角度。
 
 
-![alt text](ROS/moveit_tutorials/image-2.png#img_center)
+![alt text](image-2.png#img_center)
 
 可以通过鼠标拖动来设置start\goal state，也可以通过下拉folder来选择状态，主要分为以下几种：
 
@@ -36,13 +45,13 @@
 ### 对规划的状态进行回顾
 
 在panels中选择MotionPlanning-Slider，添加到rviz中。
-![alt text](ROS/moveit_tutorials/image-3.png)
+![alt text](image-3.png)
 
 拖动滑杆可以看到规划中的状态，点击play可以冲滑杆位置，开始演示路径执行的过程。
 
 
 ### 设置速度、加速度
-![alt text](ROS/moveit_tutorials/image-4.png)
+![alt text](image-4.png)
 
 默认速度、加速度设置的为机器人最大值的10%，我们可以对这个缩放因子进行调整，或者修改我们机器人的最大速度、加速度的设置（在moveit_config中的joint_limit.yaml）
 

@@ -1,3 +1,8 @@
+# PlanningContextManager：规划上下文缓存与创建
+
+## 结论
+
+构建状态空间、约束采样器和 OMPL 规划上下文可能开销较大。`PlanningContextManager` 负责按规划组与配置复用或创建合适的上下文；复用前仍需用当前 `PlanningScene` 和 `MotionPlanRequest` 更新请求数据，不能把上一条轨迹状态当作当前状态。
 
 💥 创建一个规划器实例（比如 RRT* 算法的一个实例）并为它配置好机器人所在的数学空间是非常耗时的
 💡 如果机器人总是用同一个算法在同一个规划组（planning group）中规划，我们就不应该重复创建这些东西
@@ -50,6 +55,5 @@ PlanningContextManager(moveit::core::RobotModelConstPtr robot_model,
 
 1. **`RobotModel`**：机器人运动学模型（来自 URDF/SRDF），所有规划都基于机器人结构；
 2. **`ConstraintSamplerManager`**：约束采样管理器（用于路径约束、目标约束的采样）。
-
 
 

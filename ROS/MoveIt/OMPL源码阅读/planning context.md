@@ -1,3 +1,11 @@
+# `planning_context.launch`：加载机器人与规划参数
+
+## 结论
+
+这个 launch 文件负责把机器人描述、语义描述、关节/笛卡尔约束和运动学参数加载到 ROS1 参数服务器。它不执行规划；`move_group` 随后读取这些参数来构建 Planning Scene 和规划接口。
+
+## 配置示例
+
 ```xml
 <launch>
   <!-- By default we do not overwrite the URDF. Change the following to true to change the default behavior -->

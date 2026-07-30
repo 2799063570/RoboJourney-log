@@ -1,50 +1,35 @@
-# Obsidian Vault
+# C++ 与 ROS1 学习笔记
 
-这个 Vault 用来沉淀机器人、ROS2、运动规划、C++ 与工程实践笔记。机械臂 ROS2 控制是当前的项目资料主线：
+这是一个使用 Obsidian 管理的个人知识库，主要记录 C++、ROS1 与 MoveIt 的学习和实践；ROS2、运动规划与工程工具作为相关扩展内容一并沉淀。
 
-> 从 ROS1 经验过渡到 ROS2，完成一个可以展示和讲清楚的机械臂控制项目。
+> 目标是把学习过程整理为可查找、可验证、可复用的知识，而不是简单收集资料。
 
-## 当前重点
+## 从这里开始
 
-- [[ROS/机械臂ROS2控制项目计划|机械臂 ROS2 控制项目计划]]
-- [[ROS/机械臂控制项目体检与完善清单|机械臂控制项目体检与完善清单]]
-- [[ROS/README|ROS 知识入口]]
-- [[motion_planning/README|运动规划入口]]
-- [[CPP/README|C++ 学习入口]]
+- 学习 ROS1 基础、常用命令、TF 或 AUBO：[[ROS/ROS1/README|ROS1 入口]]
+- 学习 MoveIt、轨迹执行或 OMPL 源码：[[ROS/MoveIt/README|MoveIt 入口]]
+- 查看 ROS2 通信与机械臂项目资料：[[ROS/ROS2/README|ROS2 入口]]
+- 学习 C++、STL、数据结构和工程实践：[[CPP/README|C++ 入口]]
+- 学习 RRT、OMPL 与规划算法：[[motion_planning/README|运动规划入口]]
+- 查看 Git 使用记录：[[Git/README|Git 入口]]
 
-## 使用说明
+## 内容结构
 
-这里的项目计划包含阶段性安排和历史勾选记录，不能据此判断当前实际进度。开始继续项目或更新简历前，应先在项目代码仓库中确认以下事实：
-
-- 核心 C++ 控制库是否可从零构建并通过测试；
-- ROS2 节点、参数和 launch 是否能实际运行；
-- URDF、`joint_states`、TF2 与 RViz2 的可视化链路是否已经跑通。
-
-建议按“可运行的最小闭环”推进：先完成 ROS2 通信与可视化，再接 MoveIt2、ros2_control 或其他扩展。不要把计划中的日期或待办项当成已经完成的工作。
-
-## 推荐阅读路径
-
-1. 要继续机械臂项目：[[ROS/README|ROS 入口]] → [[ROS/机械臂ROS2控制项目计划|项目计划]]。
-2. 要排查项目遗留问题：[[ROS/机械臂控制项目体检与完善清单|项目体检记录]]，并以实际构建结果为准。
-3. 要补 ROS2 基础：[[ROS/ROS2/通信协议-DDS-TCP-UDP|ROS2 通信协议]] → [[ROS/基础概念/tf坐标变换|TF 坐标变换]]。
-4. 要学习规划：先完成 ROS2 最小闭环，再阅读 [[motion_planning/README|运动规划入口]]。
-
-## 目录说明
-
-| 目录 | 用途 |
+| 目录 | 内容 |
 |---|---|
-| [[ROS/README|ROS]] | ROS1、ROS2、MoveIt、机械臂控制项目 |
-| [[motion_planning/README|motion_planning]] | 运动规划算法、OMPL、自写规划代码记录 |
-| [[CPP/README|CPP]] | C/C++ 基础、数据结构、STL、工程知识 |
-| [[Git/README|Git]] | Git 使用笔记 |
-| [[00-Vault管理/README|00-Vault管理]] | Vault 结构、整理规则、维护清单 |
-| [[Inbox/README|Inbox]] | 临时收集，还没有归类的材料 |
+| [[CPP/README|CPP]] | C/C++ 基础、STL、数据结构、现代 C++ 与工程实践 |
+| [[ROS/ROS1/README|ROS/ROS1]] | ROS1 基础、常用指令、TF、AUBO 与插件机制 |
+| [[ROS/MoveIt/README|ROS/MoveIt]] | MoveIt 教程、轨迹执行和 MoveIt-OMPL 源码阅读 |
+| [[ROS/ROS2/README|ROS/ROS2]] | ROS2 通信与机械臂控制项目资料 |
+| [[motion_planning/README|motion_planning]] | 运动规划算法、OMPL、RRT 和项目代码文档 |
+| [[Git/README|Git]] | Git 使用与仓库维护笔记 |
+| [[00-Vault管理/README|00-Vault管理]] | 笔记规范、目录结构与维护记录 |
+| [[Inbox/README|Inbox]] | 尚未归类的临时材料 |
 
-## 写笔记规则
+## 使用约定
 
-- 一篇笔记只解决一个问题。
-- 笔记标题尽量表达主题，不只写缩写。
-- 代码、概念、项目计划分开放。
-- 阶段性计划要注明适用时间；完成后更新为“历史计划”或迁移到项目日志。
-- 根目录只保留入口页，不放普通学习笔记。
-- 临时材料先放 `Inbox/待整理`，整理后再移动到主题目录。
+- 一篇笔记只聚焦一个明确问题，标题应能表达主题。
+- 概念笔记、代码说明、项目计划和学习日志分开保存。
+- 结论优先，必要时补充原理、命令、示例和常见问题。
+- 阶段性计划必须注明适用时间；完成后转为历史记录或迁移到项目日志。
+- 根目录只保留入口页；未归类内容先放入 `Inbox/待整理`。

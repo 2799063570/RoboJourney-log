@@ -1,6 +1,31 @@
-# 对aubo源码进行解析
+# AUBO 轨迹执行 Action 源码阅读（ROS1）
 
-## action server创建
+> 阅读目标：理解 AUBO 驱动如何把 MoveIt 的 `FollowJointTrajectory` 目标转换为机器人控制命令，并通过状态反馈判断执行结果。本文分析的是驱动实现思路，不替代真机安全手册或厂商接口文档。
+
+## 结论
+
+`JointTrajectoryAction` 是驱动侧的 action server。它接收轨迹目标、检查控制器与机器人状态、向底层驱动发布命令，并根据关节反馈、目标误差和看门狗状态返回成功、取消或失败。
+
+## 调用链
+
+```text
+MoveIt / 上层客户端
+    → FollowJointTrajectory goal
+    → JointTrajectoryAction::goalCB
+    → 轨迹命令 topic / 底层驱动
+    → 机器人状态与轨迹反馈
+    → controllerStateCB + watchdog
+    → action result
+```
+
+## 阅读时重点回答
+
+- 轨迹目标在哪个回调中校验关节名、时间和状态？
+- 控制器离线、急停或超出误差时，哪条分支会中止 action？
+- `joint_trajectory_action` 发布的命令 topic 与底层驱动订阅端如何对应？
+- `joint_states` / trajectory feedback 的时间和单位是否与 MoveIt 配置一致？
+
+## Action Server 创建
 
 该文件位于aubo_controller包下的joint_trajectory_action.cpp文件
 可以看到是的程序的实现主要基于industrial_robot_client命名空间下的joint_trajectory_action的命名空间下的

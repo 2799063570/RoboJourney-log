@@ -1,7 +1,10 @@
-#算法实现
-💡真正干活的工作，具体的算法实现的程序
-🛡️每一个规划请求（Request）都会生成一个独立的 Context 实例。
-🥊核心功能主要围绕着 **“如何把 MoveIt 的数据喂给你的算法”** 以及 **“如何把算出来的路径还给 MoveIt”**。
+# PlanningContext：一次规划请求的执行对象
+
+## 结论
+
+每个 `PlanningContext` 对应一次具体的规划任务。它接收规划场景、起点/目标/约束等请求数据，调用算法求解，并把结果写回 `MotionPlanResponse`。Context 不应承担全局插件加载或长期配置管理，那是 `PlannerManager` 的职责。
+
+## 实现算法
 
 ```cpp
 #include <moveit/planning_interface/planning_interface.h>
@@ -53,5 +56,4 @@ public:
 
 具体的任务肯定是要交给planner去实现的，那么planner如何实现呢
 这里主要是纯数学的方面，要交给OMPL中的规划器
-而我们要实现算法的话，则一定要继承于OMPL中的基类[[planner]]
-
+而我们要实现算法时，需要继承 OMPL 中的规划器基类。自定义实现骨架见 [[motion_planning/OMPL/自定义Planner骨架|自定义 Planner 骨架]]。

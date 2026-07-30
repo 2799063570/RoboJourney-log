@@ -1,4 +1,10 @@
-#算法对象管理
+# PlanningInterface：OMPL 配置与上下文协调
+
+## 结论
+
+`PlanningInterface` 是 OMPL 与 MoveIt 之间的协调层：它读取规划器配置，持有机器人模型和约束采样器，并通过 `PlanningContextManager` 提供可执行的规划上下文。它不等同于某个 RRT 算法实现。
+
+## 算法对象管理
 
 🚀一个管家的身份，根据参数服务器的信息及机器人默认来选择构造算法对象还是复制对象
 💡 主要职责是**管理配置**和**构建规划上下文**。它不直接执行规划算法，而是根据当前的场景和请求，配置并生成一个 `ModelBasedPlanningContext`对象，由该对象负责实际的路径规划。
@@ -113,4 +119,3 @@ planner_configs:
 - 赋值配置参数
 - 对规划组遍历，查看配置参数中是否存在，不存在为规划组设置空配置
 - 调用`PlanningContextManager`成员变量，`setPlannerConfigurations`
-

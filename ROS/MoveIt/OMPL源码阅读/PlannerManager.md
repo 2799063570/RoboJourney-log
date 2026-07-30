@@ -1,4 +1,17 @@
-#实现算法导入 #OMPL算法管理
+# PlannerManager：规划器插件入口（ROS1 MoveIt）
+
+## 结论
+
+`PlannerManager` 是 MoveIt 与具体规划实现之间的插件接口。它在初始化阶段保存机器人模型和配置，在收到请求时判断能否处理，并为该请求创建 `PlanningContext`；真正的求解逻辑应放在 Context 或其调用的 OMPL planner 中。
+
+## 读源码时关注
+
+- `initialize()`：模型、参数和长期资源在哪里加载；
+- `canServiceRequest()`：哪些规划组、约束或请求会被拒绝；
+- `getPlanningContext()`：如何把 `PlanningScene`、请求和配置交给 Context；
+- 导出宏：MoveIt 如何通过 pluginlib/class_loader 找到 Manager。
+
+## 实现算法导入
 
 PlannerManager就是经理，负责将我们写的算法介绍给moveit
 它负责读取`ompl_planning.yaml` 配置文件，根据你选的算法（`RRTConnect`, `PRM`...），配置好参数。

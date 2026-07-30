@@ -1,5 +1,19 @@
 
-在 ROS 的世界里，`tf`（Transform）系统就像是整个机器人的**空间定位 GPS 与翻译官**。无论是机械臂的各个关节、相机、还是环境中的障碍物，它们都有自己的独立坐标系。`tf` 的任务就是精准计算并维护这些坐标系之间的相对关系。
+# ROS1 tf 坐标变换
+
+> 适用范围：本文示例使用 ROS1 `tf` API。新代码优先使用 `tf2_ros`；ROS2 项目使用 `tf2_ros` 与 `geometry_msgs::msg::TransformStamped`，不要直接复制本页头文件。
+
+## 结论
+
+TF 维护的是一棵带时间戳的坐标系树。每条变换都必须明确父坐标系、子坐标系和采样时间；查询失败时，优先检查树是否连通、时间戳是否可用以及查询方向是否写反。
+
+## 使用前的约定
+
+- 命名遵循机器人模型：常见链路为 `map → odom → base_link → ... → tool0`。
+- 动态变换由持续运行的 broadcaster 发布；固定安装关系使用静态变换发布器。
+- 同一个 child frame 只能有一个父 frame，否则 TF 树不再是树。
+
+在 ROS 的世界里，`tf`（Transform）系统就像是整个机器人的空间定位系统。无论是机械臂的各个关节、相机，还是环境中的障碍物，它们都有自己的坐标系。`tf` 维护这些坐标系之间的相对关系。
 `tf` 相关的操作拆解为四大核心模块：**数据构建、发布（建树）、监听（查询）以及空间运算**。
 
 ## 数据构建
@@ -113,6 +127,20 @@ tf::Vector3 p_world = world_to_camera * p_camera;
 
 ## 命令行调试神器
 
-- **打印树状图 (排查树有没有断)**：`rosrun tf view_frames`
+- **打印树状图（检查树是否断开）**：`rosrun tf view_frames`
 - **实时查看两个坐标系的关系**：`rosrun tf tf_echo world ee_link`
-- **实时图形化查看连通性**：`rosrun rqt_tf_tree rqt_tf_tree`
+- **图形化查看连通性**：`rosrun rqt_tf_tree rqt_tf_tree`
+
+## 常见错误
+
+| 现象 | 优先检查 |
+| --- | --- |
+| `Lookup would require extrapolation` | 查询时刻不在缓存范围内；先试 `ros::Time(0)`，再检查发布频率和系统时间。 |
+| 找不到 transform | 父子 frame 名是否一致、是否启动 `robot_state_publisher`、树是否连通。 |
+| 变换方向错误 | 明确“目标坐标系相对于源坐标系”的含义，不要只凭变量名猜乘法顺序。 |
+| RViz 模型不动 | `/joint_states`、URDF joint 名和 `robot_state_publisher` 是否匹配。 |
+
+## 关联笔记
+
+- [[ROS常用指令]]
+- [[../MoveIt/README|MoveIt]]

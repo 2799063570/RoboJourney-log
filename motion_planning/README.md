@@ -20,7 +20,7 @@
 | RRT 修改 | [[modifyRRT]] |
 | 自写运动规划算法 | [[motion planning algorithm self]] |
 | 数据生成 | [[数据生成程序]] |
-| 代码文档索引 | [[Code_Docs/README_MAP.md]] |
+| 代码文档索引 | [[Code_Docs/README_MAP]] |
 
 ## 和 ROS/MoveIt 的关系
 
@@ -34,8 +34,8 @@
 
 不要一开始就把三层混在一起。先用纯算法理解路径生成，再看 OMPL 接口，最后接 MoveIt。
 
-## 待整理问题
+## 文档边界
 
-- `Code_Docs` 下有不少 `.md.md` 文件名，后续应统一重命名。
-- 部分文档是代码说明，部分是学习笔记，建议拆成 `算法笔记` 与 `代码文档` 两类。
-- OMPL 与 MoveIt-OMPL 的内容目前分散在 `motion_planning` 和 `ROS/moveit-ompl`，后续可以建立交叉索引。
+- `Code_Docs` 存放项目脚本与模块说明，文件名与对应源码保持一致。
+- 算法理解与实验记录保留在当前目录和 `OMPL/` 子目录。
+- MoveIt-OMPL 的框架源码阅读集中在 [[ROS/MoveIt/OMPL源码阅读/Move group|ROS/MoveIt]]；此处只保留算法与项目代码视角。

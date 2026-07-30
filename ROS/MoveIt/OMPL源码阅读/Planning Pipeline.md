@@ -1,3 +1,13 @@
+# Planning Pipeline：请求适配器与规划器串联（ROS1 MoveIt）
+
+## 结论
+
+Planning Pipeline 接收一次 `MotionPlanRequest`，按配置运行请求适配器，再调用规划器插件，最后对结果进行时间参数化或有效性处理。适配器顺序会改变请求和返回轨迹，因此 YAML 配置本身是规划行为的一部分。
+
+## 阅读提示
+
+本页示例是 ROS1 launch/参数服务器写法。MoveIt2 的参数加载与 launch 形式不同，但“请求适配器 + 规划器插件”的职责划分仍然适用。
+
 负责**配置 MoveIt! 的核心规划引擎——OMPL (Open Motion Planning Library)**。
 
 💡告诉 MoveIt：“请使用 OMPL 算法来规划路径，并在规划前后做一些预处理和后处理工作。”
@@ -170,4 +180,3 @@ planner_instance->getPlanningContext(planning_scene, request, error_code)->solve
 3. **像串珠子一样连接**： MoveIt 会把这些适配器串联起来
 	- 规划请求 -> [`FixBounds Adapter`] -> [`FixCollision Adapter`] -> [`OMPL Planner`] -> [T`imeParameterization Adapter`] -> 结果
 	- 每一个适配器处理完数据后，传递给下一个，最后才传给真正的规划器（或从规划器返回）。
-
