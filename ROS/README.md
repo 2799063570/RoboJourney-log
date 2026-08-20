@@ -7,15 +7,17 @@
 1. [[ROS1/README|ROS1 基础]]：理解节点、话题、常用命令、TF 与机器人驱动。
 2. [[MoveIt/README|MoveIt]]：从概念和教程进入轨迹执行、控制器与 OMPL 源码阅读。
 3. [[../motion_planning/README|运动规划]]：单独理解 RRT、OMPL 接口与自定义规划器。
-4. [[ROS2/README|ROS2]]：需要迁移或继续机械臂控制项目时再进入。
+4. [[导航/SLAM导航与多机器人编队|SLAM、导航与多机器人编队]]：对应移动机器人项目复习。
+5. [[ROS2/README|ROS2]]：需要迁移或继续机械臂控制项目时再进入。
 
 ## 目录说明
 
 | 目录 | 内容 |
 |---|---|
-| [[ROS1/README|ROS1]] | ROS 概览、常用指令、TF、AUBO 源码阅读与 pluginlib |
-| [[MoveIt/README|MoveIt]] | MoveIt 教程、轨迹执行、控制器和 MoveIt-OMPL 源码阅读 |
-| [[ROS2/README|ROS2]] | DDS 通信笔记与 ROS2 机械臂项目资料 |
+| [[ROS1/README\|ROS1]] | ROS 概览、常用指令、TF、AUBO 源码阅读与 pluginlib |
+| [[MoveIt/README\|MoveIt]] | MoveIt 教程、轨迹执行、控制器和 MoveIt-OMPL 源码阅读 |
+| [[ROS2/README\|ROS2]] | DDS 通信笔记与 ROS2 机械臂项目资料 |
+| [[导航/SLAM导航与多机器人编队\|导航]] | Gmapping、AMCL、move_base、探索与主从编队 |
 
 ## 整理原则
 

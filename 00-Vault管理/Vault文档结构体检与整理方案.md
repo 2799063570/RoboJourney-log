@@ -22,6 +22,9 @@ ROS/
 ├── MoveIt/             教程、轨迹执行和 MoveIt-OMPL 源码阅读
 └── ROS2/               通信机制与机械臂 ROS2 项目资料
 motion_planning/        RRT、OMPL、自定义规划与代码文档
+机器人学/              坐标变换、运动学、Jacobian 与视觉伺服
+视觉/                  OBB、RGB-D、位姿估计与手眼标定
+求职准备/              复习计划、项目证据和面试问答
 Git/                    Git 笔记
 Inbox/                  临时材料
 ```
@@ -34,6 +37,7 @@ Inbox/                  临时材料
 - ROS2 的通信与项目资料归入 `ROS/ROS2/`。
 - `motion_planning/Code_Docs` 的 `.md.md` 重复后缀已统一为 `.md`。
 - 原空白的传感器笔记已替换为 MoveIt 与 OctoMap 的主题入口。
+- 2026-08-20 根据简历补充机器人学、视觉、导航和学习引导规划专题，并新增求职复习与面试入口。
 
 ## 维护规则
 
