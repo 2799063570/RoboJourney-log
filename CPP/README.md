@@ -15,12 +15,14 @@
 
 ## 推荐阅读顺序
 
-1. [[C++生存指南]]
-2. [[程序开发知识]]
-3. [[C++面向对象]]
-4. [[C++现代用法]]
-5. [[CPP-learning/STL/STL总结]]
-6. [[CPP-learning/data_struct/data_struct]]
+1. [[C++核心与数据结构算法系统复习|C++ 核心与数据结构算法系统复习]]：求职总入口与自测主线
+2. [[C++生存指南]]
+3. [[程序开发知识]]
+4. [[C++面向对象]]
+5. [[C++现代用法]]
+6. [[CPP-learning/STL/STL总结]]
+7. [[CPP-learning/data_struct/data_struct]]
+8. [[CPP-learning/algorithm/algorithm]]
 
 ## 机械臂项目所需模块
 

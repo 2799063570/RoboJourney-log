@@ -139,7 +139,7 @@ function deleteTop(heap):
 
 链地址法是为每个桶维护一个链表（或其他数据结构），当发生冲突时，将新元素插入到对应桶的链表中。查找和删除操作需要遍历链表来找到目标元素。因此可以想象成把键值映射到一个链表数组中。
 
- ```cpp
+```cpp
 // 假设 buckets 是数组，存链表头指针
 // Node 结构: { key, value, next }
 
@@ -163,6 +163,7 @@ function unorderedMapInsert(key, val)
     newNode.next = buckets[index]
     buckets[index] = newNode
 ```
+
 
 ```cpp
 function unorderedMapErase(key)   
