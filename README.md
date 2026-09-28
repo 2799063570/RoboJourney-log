@@ -10,6 +10,7 @@
 - 学习 MoveIt、轨迹执行或 OMPL 源码：[[ROS/MoveIt/README|MoveIt 入口]]
 - 查看 ROS2 通信与机械臂项目资料：[[ROS/ROS2/README|ROS2 入口]]
 - 学习 C++、STL、数据结构和工程实践：[[CPP/README|C++ 入口]]
+- 学习调试流程并完成排障练习：[[CPP/调试方法与机器人项目实战|调试方法与机器人项目实战]]
 - 学习 RRT、OMPL 与规划算法：[[motion_planning/README|运动规划入口]]
 - 复习机器人运动学与视觉伺服：[[机器人学/README|机器人学入口]]
 - 复习 OBB、RGB-D 与手眼标定：[[视觉/README|机器人视觉入口]]
